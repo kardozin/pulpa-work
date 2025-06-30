@@ -32,10 +32,29 @@ const BoltBadge = () => (
   </div>
 );
 
+// SUPER VISIBLE TEST SECTION
+const TestSection: React.FC = () => {
+  return (
+    <section className="py-24 px-4 bg-red-600 border-8 border-yellow-400" style={{ minHeight: '300px' }}>
+      <div className="max-w-4xl mx-auto text-center">
+        <h2 className="text-6xl font-bold text-white mb-8 animate-bounce">
+          🔥 TEST SECTION VISIBLE! 🔥
+        </h2>
+        <p className="text-3xl text-yellow-300 font-bold">
+          Time: {new Date().toLocaleTimeString()}
+        </p>
+        <p className="text-2xl text-white mt-4">
+          If you see this, the page IS updating correctly!
+        </p>
+      </div>
+    </section>
+  );
+};
+
 // Final Call to Action Section
 const FinalCTASection: React.FC = () => {
   return (
-    <section className="py-24 px-4">
+    <section className="py-24 px-4 bg-green-600" style={{ minHeight: '400px' }}>
       <div className="max-w-4xl mx-auto text-center">
         <div className="bg-gradient-to-br from-primary/20 to-purple-500/20 backdrop-blur-2xl border border-white/20 rounded-3xl p-12 lg:p-16 relative overflow-hidden">
           {/* Background decoration */}
@@ -89,22 +108,6 @@ const FinalCTASection: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-};
-
-// TEST SECTION - This should be visible if the page is updating
-const TestSection: React.FC = () => {
-  return (
-    <section className="py-12 px-4 bg-red-500/20">
-      <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-3xl font-bold text-white mb-4">
-          🔥 TEST SECTION - If you see this, the page is updating! 🔥
-        </h2>
-        <p className="text-white/80">
-          This is a test section to verify the page is actually updating. Current time: {new Date().toLocaleTimeString()}
-        </p>
       </div>
     </section>
   );
