@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { Brain, Mic, MicOff, Pause, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText, Square } from 'lucide-react';
+import { Brain, Mic, MicOff, Pause, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText, Square, ArrowLeft } from 'lucide-react';
 import { useProfile } from '../hooks/useProfile';
 import ProfileForm from '../components/Profile';
 import { useAppLogic } from '../hooks/useAppLogic';
@@ -15,6 +15,7 @@ import MemoryLane from '../components/MemoryLane';
 import ModalPanel from '../components/ui/ModalPanel';
 import { MAX_TURN_DURATION } from '../config/audio';
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 // Official Built with Bolt Badge Component (Hackathon Requirements)
 const BoltBadge = () => (
@@ -200,6 +201,16 @@ function MainApp() {
     return (
       <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center p-4 overflow-hidden">
         <AnimatedBackground />
+        
+        {/* Back to Landing Page Button */}
+        <Link 
+          to="/"
+          className="absolute top-4 left-4 z-20 flex items-center gap-2 text-white/70 hover:text-white transition-colors group"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />
+          <span className="text-sm font-medium">Back to Home</span>
+        </Link>
+
         <div className="w-full max-w-sm mx-auto z-10">
           <div className="text-center mb-10">
             <Brain className="w-10 h-10 text-primary mx-auto mb-2" />
