@@ -252,7 +252,13 @@ function MainApp() {
                 {getButtonIcon()}
               </div>
               {recordingState.isRecording && (
-                  <div className="absolute inset-0 rounded-full border-2 border-white/30" style={{ transform: `scale(${1 + recordingState.audioLevel * 5})`, opacity: Math.max(0, 1 - recordingState.audioLevel * 5), transition: 'transform 0.1s, opacity 0.2s' }}></div>
+                <div 
+                  className="absolute inset-0 rounded-full border-2 border-white/30 transition-all duration-100" 
+                  style={{ 
+                    transform: `scale(${1 + recordingState.audioLevel * 0.3})`, 
+                    opacity: Math.max(0.3, 1 - recordingState.audioLevel * 0.5)
+                  }}
+                ></div>
               )}
             </button>
             {recordingState.isRecording && (
