@@ -22,7 +22,7 @@ export interface UseAppLogicReturn {
   isSummarizing: boolean;
   currentConversationId: string | null;
   MAX_TURN_DURATION: number;
-
+  finishSessionError: string | null;
 }
 
 export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAppLogicReturn => {
@@ -46,6 +46,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
   const [showConversation, setShowConversation] = useState<boolean>(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const [finishSessionError, setFinishSessionError] = useState<string | null>(null);
   const { 
     metaReflectionRequest, 
     setMetaReflectionRequest, 
@@ -658,8 +659,6 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     };
   }, [handleInterruptAudio, stopStreamingRecording]);
 
-
-
   const handleFinishSession = useCallback(async () => {
     if (!currentConversationIdRef.current || !profile) {
       console.log("No active session to finish.");
@@ -667,21 +666,47 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     }
 
     setIsSummarizing(true);
+    setFinishSessionError(null);
+    
     try {
-      console.log(`Finishing session, summarizing conversation: ${currentConversationIdRef.current}`);
-      await summarizeConversation(currentConversationIdRef.current);
+      console.log(`🔄 Finishing session, summarizing conversation: ${currentConversationIdRef.current}`);
+      const result = await summarizeConversation(currentConversationIdRef.current);
+      
+      console.log(`✅ Session finished successfully. Summary: "${result.summary}"`);
+      
       // Reset for the next conversation
       setCurrentConversationId(null);
       setConversationHistory([]);
+      
+      // Show success message briefly
+      setRecordingState(prev => ({ 
+        ...prev, 
+        status: 'Session finished and summary generated!' 
+      }));
+      
+      // Reset to ready state after a brief delay
+      setTimeout(() => {
+        resetToReadyState();
+      }, 2000);
+      
     } catch (error) {
-      console.error("Failed to summarize and finish session:", error);
-      // Decide if you want to reset even if summary fails. For now, we will.
+      console.error("❌ Failed to summarize and finish session:", error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to finish session';
+      setFinishSessionError(errorMessage);
+      
+      // Still reset the conversation even if summary fails
       setCurrentConversationId(null);
       setConversationHistory([]);
+      
+      // Show error briefly then reset
+      setTimeout(() => {
+        setFinishSessionError(null);
+        resetToReadyState();
+      }, 3000);
     } finally {
       setIsSummarizing(false);
     }
-  }, []);
+  }, [profile, resetToReadyState]);
 
   return {
     recordingState,
@@ -694,6 +719,6 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     isSummarizing,
     currentConversationId,
     MAX_TURN_DURATION,
-
+    finishSessionError,
   };
 };

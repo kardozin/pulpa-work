@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { Brain, Mic, MicOff, Pause, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText, Square, ArrowLeft } from 'lucide-react';
+import { Brain, Mic, MicOff, Pause, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText, Square, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useProfile } from '../hooks/useProfile';
 import ProfileForm from '../components/Profile';
 import { useAppLogic } from '../hooks/useAppLogic';
@@ -56,7 +56,7 @@ function MainApp() {
     handleFinishSession,
     isSummarizing,
     currentConversationId,
-
+    finishSessionError,
   } = useAppLogic(profile, auth);
 
   // 2. UI State
@@ -328,6 +328,12 @@ function MainApp() {
               <p className="text-xs text-white/40 mt-2 text-center">
                 Saves conversation and generates summary
               </p>
+              {finishSessionError && (
+                <div className="flex items-center gap-2 mt-2 text-red-400 text-xs">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{finishSessionError}</span>
+                </div>
+              )}
             </div>
           )}
         </div>

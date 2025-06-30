@@ -194,15 +194,23 @@ export const fetchConversationById = async (conversationId: string) => {
 };
 
 export const summarizeConversation = async (conversationId: string) => {
+  console.log(`🔄 Starting summarization for conversation: ${conversationId}`);
+  
   const { data, error } = await supabase.functions.invoke('summarize-conversation', {
     body: { conversationId },
   });
 
   if (error) {
-    console.error('Error summarizing conversation:', error);
-    throw new Error(error.message);
+    console.error('❌ Error summarizing conversation:', error);
+    throw new Error(`Failed to summarize conversation: ${error.message}`);
   }
 
+  if (!data || !data.success) {
+    console.error('❌ Invalid response from summarize-conversation:', data);
+    throw new Error(data?.error || 'Failed to generate summary');
+  }
+
+  console.log(`✅ Successfully summarized conversation: "${data.summary}"`);
   return data;
 };
 
