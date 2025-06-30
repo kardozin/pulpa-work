@@ -98,32 +98,33 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     }
   }, []);
 
-  const handleInterruptAudio = useCallback(() => {
-    console.log('🛑 Interrupting audio and resetting states...');
-    cleanupAudio();
-    
-    // Reset all processing states and make microphone ready
+  const resetToReadyState = useCallback(() => {
+    console.log('🔄 Resetting to ready state...');
     setRecordingState(prev => ({
       ...prev,
-      isPlayingAudio: false,
+      isRecording: false,
       isProcessing: false,
       isAiThinking: false,
       isGeneratingAudio: false,
+      isPlayingAudio: false,
+      audioLevel: 0,
+      recordingDuration: 0,
+      error: '',
       status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed',
     }));
-  }, [cleanupAudio]);
+  }, []);
+
+  const handleInterruptAudio = useCallback(() => {
+    console.log('🛑 Interrupting audio and resetting states...');
+    cleanupAudio();
+    resetToReadyState();
+  }, [cleanupAudio, resetToReadyState]);
 
   const playAudio = useCallback(async (audioBlob: Blob) => {
     console.log('🔊 Attempting to play audio blob:', audioBlob);
     if (audioBlob.size === 0) {
       console.error('Received an empty audio blob. Skipping playback.');
-      setRecordingState(prev => ({ 
-        ...prev, 
-        isPlayingAudio: false, 
-        isGeneratingAudio: false,
-        error: 'Received empty audio from server.',
-        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
-      }));
+      resetToReadyState();
       return;
     }
 
@@ -135,14 +136,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     audioInstanceRef.current = audio;
 
     audio.onended = () => {
-      console.log('🎵 Audio finished playing - microphone should be ready now');
+      console.log('🎵 Audio finished playing - resetting to ready state');
       cleanupAudio();
-      setRecordingState(prev => ({ 
-        ...prev, 
-        isPlayingAudio: false, 
-        isGeneratingAudio: false,
-        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
-      }));
+      resetToReadyState();
     };
 
     audio.onerror = () => {
@@ -168,15 +164,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     } catch (error) {
       console.error('❌ Error trying to play audio:', error);
       cleanupAudio();
-      setRecordingState(prev => ({ 
-        ...prev, 
-        isPlayingAudio: false, 
-        isGeneratingAudio: false,
-        error: 'Could not play audio.',
-        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
-      }));
+      resetToReadyState();
     }
-  }, [cleanupAudio]);
+  }, [cleanupAudio, resetToReadyState]);
 
   const processAudio = useCallback(async (audioBlob: Blob) => {
     if (!profile) {
@@ -197,11 +187,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       const transcription = await invokeTranscribe(audioBlob, profile.preferred_language || 'es-AR');
       if (!transcription.trim()) {
         console.log('Transcription is empty, skipping AI chat.');
-        setRecordingState(prev => ({ 
-          ...prev, 
-          isProcessing: false, 
-          status: prev.hasPermission ? 'Could not hear anything clearly. Try again.' : 'Microphone access needed'
-        }));
+        resetToReadyState();
         return;
       }
 
@@ -243,12 +229,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         });
       } else {
         console.error("Cannot save user message without a conversation ID.");
-        setRecordingState(prev => ({ 
-          ...prev, 
-          isProcessing: false, 
-          error: 'Failed to save message.',
-          status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
-        }));
+        resetToReadyState();
         return;
       }
 
@@ -274,11 +255,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
 
       if (!profile) {
         console.error("Cannot play audio without user profile.");
-        setRecordingState(prev => ({ 
-          ...prev, 
-          isGeneratingAudio: false, 
-          status: prev.hasPermission ? 'Error: Profile not found.' : 'Microphone access needed'
-        }));
+        resetToReadyState();
         return;
       }
       const languageCode = profile.preferred_language || 'es-AR';
@@ -299,7 +276,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
       }));
     }
-  }, [profile, playAudio]);
+  }, [profile, playAudio, resetToReadyState]);
 
   const stopStreamingRecording = useCallback(async (processAudioData: boolean) => {
     console.log(`🟡 Stopping recording. Process audio: ${processAudioData}`);
@@ -310,14 +287,8 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
           const finalAudioBlob = new Blob(allAudioChunksRef.current, { type: AUDIO_CONFIG.mimeType });
           processAudio(finalAudioBlob);
         } else {
-          // If we're not processing audio, make sure microphone is ready
-          setRecordingState(prev => ({
-            ...prev,
-            isRecording: false,
-            audioLevel: 0,
-            recordingDuration: 0,
-            status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
-          }));
+          // If we're not processing audio, reset to ready state
+          resetToReadyState();
         }
         // Clean up chunks for the next recording
         allAudioChunksRef.current = [];
@@ -341,7 +312,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     }
 
     hasDetectedSpeechRef.current = false;
-  }, [processAudio]);
+  }, [processAudio, resetToReadyState]);
 
   const monitorAudioLevel = useCallback(() => {
     if (!audioContextRef.current || !analyserRef.current) return;
