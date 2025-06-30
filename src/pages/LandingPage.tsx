@@ -96,7 +96,7 @@ const FinalCTASection: React.FC = () => {
 
 const LandingPage: React.FC = () => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden">
       <AnimatedBackground />
       
       <div className="relative z-10">
