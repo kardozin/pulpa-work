@@ -67,7 +67,7 @@ serve(async (req: Request) => {
       ?.map(result => result.alternatives[0].transcript)
       .join('\n') || "";
       
-    console.log(`📝 Final transcript: \"${transcript}\"");
+    console.log(`📝 Final transcript: "${transcript}"`);
 
     // 5. Clean up the GCS file and return the transcript
     console.log(`Cleaning up GCS file: ${gcsFileName}...`);
