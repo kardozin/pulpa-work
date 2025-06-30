@@ -41,36 +41,54 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onOnboardingComplete })
   };
 
   return (
-    <ModalPanel title="Welcome to Pulpa" onClose={() => { /* Onboarding should not be closable from X */ }}>
-      <div className="flex-grow min-h-[300px] flex flex-col justify-center items-center text-center">
-        {renderStepContent()}
-      </div>
-      
-      <div className="flex justify-center items-center my-6">
-        {Array.from({ length: totalSteps }, (_, i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 rounded-full mx-1.5 transition-all duration-300 ${currentStep >= i + 1 ? 'bg-primary' : 'bg-slate-600'}`}
-          />
-        ))}
-      </div>
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center overflow-hidden">
+      <ModalPanel title="Welcome to Pulpa" onClose={() => { /* Onboarding should not be closable from X */ }}>
+        <div className="flex-grow min-h-[300px] flex flex-col justify-center items-center text-center">
+          {renderStepContent()}
+        </div>
+        
+        <div className="flex justify-center items-center my-6">
+          {Array.from({ length: totalSteps }, (_, i) => (
+            <div
+              key={i}
+              className={`w-3 h-3 rounded-full mx-1.5 transition-all duration-300 ${currentStep >= i + 1 ? 'bg-primary' : 'bg-slate-600'}`}
+            />
+          ))}
+        </div>
 
-      <div className="flex justify-between mt-8">
-        <button
-          onClick={prevStep}
-          disabled={currentStep === 1}
-          className="px-6 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-text-secondary hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        <div className="flex justify-between mt-8">
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            className="px-6 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-text-secondary hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Back
+          </button>
+          <button
+            onClick={currentStep === totalSteps ? onOnboardingComplete : nextStep}
+            className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-focus transition-colors"
+          >
+            {currentStep === totalSteps ? 'Finish' : 'Next'}
+          </button>
+        </div>
+      </ModalPanel>
+
+      {/* Built with Bolt Badge - Onboarding */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <a 
+          href="https://bolt.new" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="block transition-transform hover:scale-105"
         >
-          Back
-        </button>
-        <button
-          onClick={currentStep === totalSteps ? onOnboardingComplete : nextStep}
-          className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-focus transition-colors"
-        >
-          {currentStep === totalSteps ? 'Finish' : 'Next'}
-        </button>
+          <img 
+            src="/logotext_poweredby_360w.png" 
+            alt="Built with Bolt" 
+            className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
+          />
+        </a>
       </div>
-    </ModalPanel>
+    </div>
   );
 };
 

@@ -108,6 +108,22 @@ function App() {
             />
           </div>
         </div>
+        
+        {/* Built with Bolt Badge - Login Screen */}
+        <div className="fixed bottom-4 right-4 z-50">
+          <a 
+            href="https://bolt.new" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block transition-transform hover:scale-105"
+          >
+            <img 
+              src="/logotext_poweredby_360w.png" 
+              alt="Built with Bolt" 
+              className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
+            />
+          </a>
+        </div>
       </div>
     );
   }
@@ -206,6 +222,22 @@ function App() {
           <p className="text-white/70 text-lg transition-opacity duration-300">{recordingState.status}</p>
           {recordingState.error && <p className="text-red-400 mt-2">{recordingState.error}</p>}
         </div>
+      </div>
+
+      {/* Built with Bolt Badge - Main App */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <a 
+          href="https://bolt.new" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="block transition-transform hover:scale-105"
+        >
+          <img 
+            src="/logotext_poweredby_360w.png" 
+            alt="Built with Bolt" 
+            className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
+          />
+        </a>
       </div>
 
       {/* Memory Lane Modal */}
