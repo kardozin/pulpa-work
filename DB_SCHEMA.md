@@ -1,98 +1,213 @@
-# 🧬 DB_SCHEMA.md - Esquema de la Base de Datos
+# 🧬 Database Schema Documentation
 
-*Última actualización: 29 de junio de 2025, 20:06:24 (GMT-3)*
+*Last updated: December 30, 2024, 20:06:24 (GMT-3)*
 
-Este documento describe la arquitectura, reglas de seguridad y lógica automatizada de la base de datos del proyecto en Supabase. Sirve como la fuente de la verdad para el esquema de datos.
+This document describes the complete database architecture, security policies, and automated logic for the pulpa.work project in Supabase. It serves as the definitive source of truth for the data schema.
 
-## Tablas Principales
+## Core Tables
 
-### Tabla: `profiles`
+### Table: `profiles`
 
-Almacena la información del perfil de cada usuario, extendiendo la tabla `auth.users` de Supabase.
+Extended user profile information that enhances the base `auth.users` table with application-specific data.
 
-| Columna | Tipo de Dato | Nulable | Valor por Defecto / Clave Foránea | Descripción |
+| Column | Data Type | Nullable | Default/Foreign Key | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **id** | `uuid` | No | **Primary Key**, FK a `auth.users.id` | Identificador único del usuario. |
-| `created_at` | `timestamptz` | No | `now()` | Fecha y hora de creación del perfil. |
-| `updated_at` | `timestamptz` | Sí | `NULL` | Fecha y hora de la última actualización. |
-| `full_name` | `text` | Sí | `NULL` | Nombre completo del usuario. |
-| `timezone` | `text` | Sí | `NULL` | Zona horaria del usuario (e.g., 'America/Mexico_City'). |
-| `goals` | `text` | Sí | `NULL` | Objetivos o metas definidos por el usuario. |
-| `role` | `text` | Sí | `NULL` | Rol o profesión del usuario. |
-| `preferred_language` | `text` | Sí | `NULL` | Idioma de preferencia del usuario. |
-| `preferred_voice_id` | `text` | Sí | `NULL` | ID de la voz preferida para la síntesis de voz. |
-| `onboarding_completed`| `boolean` | No | `false` | Indica si el usuario ha completado el proceso de onboarding. |
+| **id** | `uuid` | No | **Primary Key**, FK to `auth.users.id` | Unique user identifier |
+| `created_at` | `timestamptz` | No | `now()` | Profile creation timestamp |
+| `updated_at` | `timestamptz` | Yes | `NULL` | Last profile update timestamp |
+| `full_name` | `text` | Yes | `NULL` | User's full name for personalization |
+| `timezone` | `text` | Yes | `NULL` | User timezone (e.g., 'America/Argentina/Buenos_Aires') |
+| `goals` | `text` | Yes | `NULL` | User's goals and objectives for using the app |
+| `role` | `text` | Yes | `NULL` | User's profession or role for context |
+| `preferred_language` | `text` | Yes | `NULL` | Language preference ('en-US' or 'es-AR') |
+| `preferred_voice_id` | `text` | Yes | `NULL` | ElevenLabs voice ID for TTS |
+| `onboarding_completed` | `boolean` | No | `false` | Whether user completed onboarding flow |
+| `long_term_persona` | `text` | Yes | `NULL` | **NEW** - AI-generated psychological profile |
+| `persona_updated_at` | `timestamptz` | Yes | `NULL` | **NEW** - Last persona update timestamp |
 
-### Tabla: `conversations`
+### Table: `conversations`
 
-Registra cada sesión de conversación que un usuario tiene con el asistente.
+Records each reflection session between the user and the AI assistant.
 
-| Columna | Tipo de Dato | Nulable | Valor por Defecto / Clave Foránea | Descripción |
+| Column | Data Type | Nullable | Default/Foreign Key | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **id** | `uuid` | No | `gen_random_uuid()` / **Primary Key** | Identificador único de la conversación. |
-| `user_id` | `uuid` | No | FK a `profiles.id` | Usuario al que pertenece la conversación. |
-| `created_at` | `timestamptz` | No | `now()` | Fecha y hora de inicio de la conversación. |
-| `summary` | `text` | Sí | `NULL` | Resumen generado automáticamente de la conversación. |
+| **id** | `uuid` | No | `gen_random_uuid()` / **Primary Key** | Unique conversation identifier |
+| `user_id` | `uuid` | No | FK to `profiles.id` | Owner of the conversation |
+| `created_at` | `timestamptz` | No | `now()` | Conversation start timestamp |
+| `summary` | `text` | Yes | `NULL` | AI-generated conversation summary |
 
-### Tabla: `messages`
+### Table: `messages`
 
-Guarda cada mensaje individual (del usuario o del asistente) dentro de una conversación.
+Stores individual messages within conversations with vector embeddings for semantic search.
 
-| Columna | Tipo de Dato | Nulable | Valor por Defecto / Clave Foránea | Descripción |
+| Column | Data Type | Nullable | Default/Foreign Key | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **id** | `uuid` | No | `gen_random_uuid()` / **Primary Key** | Identificador único del mensaje. |
-| `conversation_id` | `uuid` | No | FK a `conversations.id` | Conversación a la que pertenece el mensaje. |
-| `role` | `text` | No | `NULL` | Rol del emisor ('user' o 'assistant'). |
-| `text` | `text` | No | `NULL` | Contenido del mensaje. |
-| `created_at` | `timestamptz` | No | `now()` | Fecha y hora de creación del mensaje. |
-| `embedding` | `vector(768)` | Sí | `NULL` | Vector de embedding del texto para búsquedas semánticas. |
+| **id** | `uuid` | No | `gen_random_uuid()` / **Primary Key** | Unique message identifier |
+| `conversation_id` | `uuid` | No | FK to `conversations.id` | Parent conversation |
+| `role` | `text` | No | `NULL` | Message sender ('user' or 'model') |
+| `text` | `text` | No | `NULL` | Message content |
+| `created_at` | `timestamptz` | No | `now()` | Message creation timestamp |
+| `embedding` | `vector(768)` | Yes | `NULL` | Vector embedding for semantic search |
 
-## Políticas de Seguridad (RLS)
+**Constraints:**
+- `messages_role_check`: Ensures role is either 'user' or 'model'
 
-Las siguientes políticas de seguridad a nivel de fila están activas para garantizar que los usuarios solo puedan acceder a sus propios datos.
+### Table: `periodic_summaries` (NEW)
 
-| Tabla | Nombre de la Política | Comando | Propósito |
+Automated weekly and monthly analysis of user reflections with insights and patterns.
+
+| Column | Data Type | Nullable | Default/Foreign Key | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **id** | `uuid` | No | `gen_random_uuid()` / **Primary Key** | Unique summary identifier |
+| `user_id` | `uuid` | No | FK to `profiles.id` | Summary owner |
+| `period_type` | `text` | No | `NULL` | Summary period ('weekly' or 'monthly') |
+| `period_start` | `date` | No | `NULL` | Period start date |
+| `period_end` | `date` | No | `NULL` | Period end date |
+| `summary` | `text` | No | `NULL` | AI-generated narrative summary |
+| `key_themes` | `text[]` | Yes | `NULL` | Main themes identified in the period |
+| `emotional_patterns` | `text[]` | Yes | `NULL` | Emotional patterns observed |
+| `growth_insights` | `text[]` | Yes | `NULL` | Personal growth insights |
+| `conversation_count` | `integer` | Yes | `0` | Number of conversations in period |
+| `total_messages` | `integer` | Yes | `0` | Total messages in period |
+| `created_at` | `timestamptz` | Yes | `now()` | Summary creation timestamp |
+
+**Constraints:**
+- `periodic_summaries_period_type_check`: Ensures period_type is 'weekly' or 'monthly'
+- Unique constraint on `(user_id, period_type, period_start, period_end)`
+
+## Security Policies (Row Level Security)
+
+All tables have RLS enabled with comprehensive policies to ensure data isolation.
+
+| Table | Policy Name | Command | Purpose |
 | :--- | :--- | :--- | :--- |
-| `profiles` | `Allow authenticated users to read their own profile` | `SELECT` | Permite a un usuario leer únicamente su propio perfil. |
-| `profiles` | `Allow authenticated users to insert their own profile` | `INSERT` | Permite a un usuario crear su propio perfil. |
-| `profiles` | `Allow authenticated users to update their own profile` | `UPDATE` | Permite a un usuario actualizar únicamente su propio perfil. |
-| `conversations` | `Los usuarios pueden gestionar sus propias conversaciones` | `ALL` | Permite a un usuario realizar cualquier operación sobre sus propias conversaciones. |
-| `messages` | `Los usuarios pueden gestionar los mensajes de sus conversacione` | `ALL` | Permite a un usuario gestionar los mensajes que pertenecen a sus conversaciones. |
+| `profiles` | `Allow authenticated users to read their own profile` | `SELECT` | Users can only read their own profile |
+| `profiles` | `Allow authenticated users to insert their own profile` | `INSERT` | Users can create their own profile |
+| `profiles` | `Allow authenticated users to update their own profile` | `UPDATE` | Users can modify their own profile |
+| `conversations` | `Users can manage their own conversations` | `ALL` | Full CRUD access to own conversations |
+| `messages` | `Users can manage messages in their conversations` | `ALL` | Access to messages in owned conversations |
+| `periodic_summaries` | `Users can read their own periodic summaries` | `SELECT` | Read access to own summaries |
+| `periodic_summaries` | `Service role can manage periodic summaries` | `ALL` | Service role for automated generation |
 
-## Funciones y Triggers de la Base de Datos
+## Database Functions
 
-La lógica de negocio se automatiza y expone a través de las siguientes funciones.
+### RPC Functions (Remote Procedure Call)
 
-### Funciones RPC (Remote Procedure Call)
+These functions provide secure, optimized operations for the application.
 
-Estas funciones están diseñadas para ser llamadas de forma segura desde las Edge Functions.
+#### 1. `insert_message_with_embedding(p_conversation_id, p_role, p_text, p_embedding)`
+**Purpose:** Atomically insert a message with its vector embedding.
+**Usage:** Called by the `add-message` Edge Function after generating embeddings.
+**Returns:** The inserted message record.
 
-1.  **`insert_message_with_embedding(p_conversation_id, p_role, p_text, p_embedding)`**
-    *   **Propósito:** Es el método principal y atómico para guardar nuevos mensajes. Recibe los detalles del mensaje y su vector de embedding pre-calculado, y los inserta en la tabla `messages`.
-    *   **Flujo:** Es invocada por la Edge Function `add-message` después de que esta última genera el embedding. Este enfoque centralizado reemplaza al antiguo sistema de triggers.
+#### 2. `pulpa_match_messages(p_user_id, query_embedding, match_threshold, match_count)`
+**Purpose:** Semantic search using vector similarity.
+**Parameters:**
+- `p_user_id`: User to search within
+- `query_embedding`: Vector to match against
+- `match_threshold`: Minimum similarity score (0.0-1.0)
+- `match_count`: Maximum results to return
+**Returns:** Array of matching messages with similarity scores.
 
-2.  **`pulpa_match_messages(p_user_id, query_embedding, match_threshold, match_count)`**
-    *   **Propósito:** Es el motor de la búsqueda semántica. Recibe un embedding de consulta y devuelve los mensajes más similares de un usuario específico.
-    *   **Invocación:** Utilizada por la Edge Function `semantic-search`.
+#### 3. `get_user_enhanced_context(p_user_id)` (NEW)
+**Purpose:** Retrieve comprehensive user context for AI conversations.
+**Returns:** Formatted string with:
+- Long-term psychological persona
+- Recent periodic summaries
+- Key themes and patterns
+- Emotional insights
 
-### Funciones de Trigger
+### Trigger Functions
 
-1.  **`handle_new_user()`**
-    *   **Propósito:** Crea automáticamente un perfil en la tabla `profiles` cuando un nuevo usuario se registra en `auth.users`.
+#### 1. `handle_new_user()`
+**Purpose:** Automatically create a profile when a user registers.
+**Trigger:** `AFTER INSERT` on `auth.users`
 
-### Triggers
+## Automated Analytics System
 
-1.  **`on_auth_user_created`**
-    *   **Tabla:** `auth.users`
-    *   **Evento:** `AFTER INSERT`
-    *   **Acción:** Ejecuta la función `handle_new_user()`.
+### Cron Jobs (pg_cron)
 
-## Tablas Obsoletas
+The system includes automated jobs for generating insights:
 
-Durante la auditoría, se identificaron las siguientes tablas que ya no están en uso y se recomienda su eliminación para mantener la base de datos limpia.
+#### Weekly Summary Generation
+- **Schedule:** Every Monday at 02:00 UTC
+- **Function:** `generate-periodic-summary`
+- **Scope:** All users with activity in the past week
 
-| Tabla | Descripción | Acción Recomendada |
-| :--- | :--- | :--- |
-| `reflections_old` | Tabla de una versión anterior del sistema. Ha sido reemplazada por la estructura de `conversations` y `messages`. | Eliminar (`DROP TABLE public.reflections_old;`) |
+#### Monthly Summary Generation
+- **Schedule:** 1st of each month at 03:00 UTC
+- **Function:** `generate-periodic-summary`
+- **Scope:** All users with activity in the past month
+- **Additional:** Updates long-term persona based on accumulated insights
+
+### Analytics Data Flow
+
+1. **Data Collection:** Messages stored with embeddings during conversations
+2. **Periodic Analysis:** Cron jobs trigger summary generation
+3. **Pattern Recognition:** AI identifies themes, emotions, and growth patterns
+4. **Persona Evolution:** Monthly updates to psychological profile
+5. **Context Enhancement:** Enriched context feeds back into future conversations
+
+## Indexes and Performance
+
+### Optimized Indexes
+
+| Table | Index Name | Definition | Purpose |
+| :--- | :--- | :--- | :--- |
+| `conversations` | `idx_conversations_user_date` | `(user_id, created_at DESC)` | Fast user conversation lookup |
+| `periodic_summaries` | `idx_periodic_summaries_user_period` | `(user_id, period_type, period_end DESC)` | Efficient summary queries |
+| `messages` | Vector index on `embedding` | pgvector HNSW | Fast semantic search |
+
+### Vector Search Configuration
+
+- **Extension:** pgvector for PostgreSQL
+- **Dimensions:** 768 (Google text-embedding-004)
+- **Distance Function:** Cosine similarity
+- **Index Type:** HNSW for optimal performance
+
+## Data Types and Enums
+
+### Custom Types
+
+#### `message_role` (enum)
+- Values: `'user'`, `'assistant'`, `'model'`
+- Usage: Ensures consistent role identification
+
+## Migration History
+
+The database schema has evolved through several key migrations:
+
+1. **Initial Schema:** Basic profiles, conversations, messages
+2. **Onboarding Enhancement:** Added onboarding fields and status
+3. **Vector Search:** Added pgvector extension and embedding columns
+4. **Semantic Search:** Created optimized search functions
+5. **Periodic Analytics:** Added summaries table and automation
+6. **Enhanced Context:** Added long-term persona and context functions
+
+## Data Retention and Cleanup
+
+### Automatic Cleanup
+- **Temporary Files:** GCS audio files deleted after transcription
+- **Old Summaries:** Configurable retention period for periodic summaries
+- **Embedding Backfill:** Function available for retroactive embedding generation
+
+### Data Export
+- **User Data:** Full export capabilities for GDPR compliance
+- **Analytics:** Summary data can be exported for external analysis
+
+## Security Considerations
+
+### Data Protection
+- **Encryption:** All data encrypted at rest and in transit
+- **Access Control:** RLS policies enforce strict data isolation
+- **API Security:** All functions require valid JWT tokens
+- **Audit Trail:** Comprehensive logging of all data access
+
+### Privacy Features
+- **Data Minimization:** Only necessary data is collected and stored
+- **User Control:** Users can delete their data at any time
+- **Anonymization:** Analytics can be anonymized for research purposes
 
 ---
+
+This schema supports a sophisticated AI-powered reflection platform with advanced analytics, semantic search, and automated insight generation while maintaining strict security and privacy standards.

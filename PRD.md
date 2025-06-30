@@ -1,122 +1,278 @@
-Documento de Requisitos del Producto (PRD) - pulpa.work (Versión 2.0)
+# Product Requirements Document (PRD) - pulpa.work (Version 3.0)
 
-*Última actualización: 29 de junio de 2025, 20:21:14 (GMT-3)*
-1. Introducción
-pulpa.work es una aplicación web impulsada por IA diseñada para facilitar la autorreflexión diaria guiada por voz. Su propósito es "sacar la pulpa" del usuario, el verdadero "meat and juice" de sus pensamientos y experiencias. Inspirada en los principios estoicos, la aplicación actúa como un entrevistador empático y perspicaz, ayudando a los usuarios a explorar sus experiencias, emociones y aprendizajes de una manera estructurada pero natural.
+*Last updated: December 30, 2024, 20:21:14 (GMT-3)*
 
-Su objetivo principal es ayudar al usuario a descubrir ideas más profundas de sus experiencias diarias, las cuales son luego transcritas, analizadas y almacenadas en una base de conocimiento personal. A largo plazo, esta base de conocimiento permitirá al usuario dialogar con sus propios pensamientos para generar contenido estructurado y descubrir patrones de pensamiento.
+## 1. Introduction
 
-2. Objetivos
-Objetivo Principal: Proporcionar un mecanismo consistente, efectivo y atractivo para la autorreflexión e introspección diaria hablada, ayudando al usuario a extraer la esencia de sus pensamientos.
+pulpa.work is an AI-powered web application designed for voice-guided self-reflection and personal insight generation. The platform acts as an empathetic "stoic interviewer" that helps users explore their thoughts through natural conversation while building a comprehensive, searchable knowledge base of their reflections.
 
-Objetivo 1 (Reflexión): Permitir al usuario verbalizar pensamientos, sentimientos y aprendizajes de manera espontánea y sin inhibiciones diariamente.
+The application's core mission is to help users extract the "pulpa" (essence) of their daily experiences, transforming scattered thoughts into structured insights through AI-guided dialogue, semantic search, and automated pattern analysis.
 
-Objetivo 2 (Perspectivas): Facilitar la identificación de patrones recurrentes, perspectivas personales y áreas de expertise a partir de las reflexiones del usuario.
+## 2. Product Objectives
 
-Objetivo 3 (Generación de Contenido): Generar contenido estructurado y articulado (ej., artículos, publicaciones en redes sociales, historias) en la voz aprendida del usuario.
+### Primary Objective
+Provide a comprehensive platform for daily self-reflection that combines voice interaction, AI guidance, and automated analytics to help users develop deeper self-awareness and track personal growth over time.
 
-Objetivo 4 (Base de Conocimiento): Crear una base de datos personal, buscable y analizable, de los pensamientos y experiencias del usuario a lo largo del tiempo.
+### Core Objectives
 
-Objetivo 5 (Crecimiento Personal): Servir como catalizador para una mayor autoconciencia, inteligencia emocional y aplicación filosófica en la vida diaria.
+**Objective 1 (Voice Reflection):** Enable natural, voice-based reflection sessions with an AI that adapts to the user's communication style and personal context.
 
-3. Usuario Objetivo
-Individuos que buscan una forma más profunda de llevar un diario, creadores de contenido, entusiastas del desarrollo personal, coaches, y cualquier persona interesada en aprovechar la IA para el autodescubrimiento y la comunicación auténtica.
+**Objective 2 (Knowledge Building):** Create a searchable, analyzable repository of personal thoughts and insights with semantic search capabilities.
 
-4. Roadmap de Funcionalidades por Fases
-4.1. Funcionalidad Central (Implementada)
-Ciclo de Conversación por Voz: Flujo completo de grabación, transcripción, respuesta de IA y síntesis de voz.
+**Objective 3 (Pattern Recognition):** Automatically identify recurring themes, emotional patterns, and growth opportunities through periodic analysis.
 
-Transcripción Asíncrona: Soporte para audios de larga duración sin timeouts mediante un sistema de dos pasos (transcribe y get-transcription-status).
+**Objective 4 (Contextual Intelligence):** Develop a deep understanding of each user's psychological profile to provide increasingly personalized guidance.
 
-Entrevistador de IA Personalizado: La IA (Gemini Pro) mantiene el contexto de la conversación y adapta sus preguntas utilizando la información del perfil del usuario (nombre, rol, objetivos).
+**Objective 5 (Insight Generation):** Transform raw reflections into actionable insights through AI analysis and meta-reflection capabilities.
 
-Gestión de Perfil de Usuario: Los usuarios pueden crear una cuenta y gestionar su información de perfil para personalizar la experiencia.
+**Objective 6 (Long-term Growth):** Track personal evolution over time through automated summaries and persona development.
 
-4.2. Fase 1: Unificación y Pulido de la Experiencia de Usuario (UI/UX) - [Implementada]
-Consistencia Visual: Unificar la estética de la página de Login/Signup con el diseño de la aplicación principal.
+## 3. Target Users
 
-Onboarding de Perfil: Crear un flujo de bienvenida guiado para que los nuevos usuarios completen su perfil.
+### Primary Users
+- **Self-reflection Enthusiasts:** Individuals seeking structured approaches to personal growth
+- **Content Creators:** People who want to develop authentic voice and explore ideas
+- **Professionals:** Those using reflection for career development and decision-making
+- **Wellness Practitioners:** Users incorporating reflection into mental health routines
 
-Diseño Responsivo: Adaptar la interfaz para una experiencia de usuario óptima en dispositivos móviles.
+### User Personas
 
-Mejora de la Interfaz de Conversación: Refinar el diseño visual del historial de la conversación para mejorar la legibilidad y la estética.
+#### The Reflective Professional
+- Uses the app for daily check-ins and career reflection
+- Values privacy and data security
+- Wants to track progress on professional goals
+- Needs quick, efficient reflection sessions
 
-Controles de Audio: Implementar botones para pausar, reanudar e interrumpir la reproducción del audio de la IA.
+#### The Personal Growth Seeker
+- Deeply interested in self-awareness and emotional intelligence
+- Enjoys exploring patterns in their thinking
+- Values the AI's ability to ask probing questions
+- Uses insights for life decisions and relationship improvement
 
-Unificación de Modales: Se ha implementado un componente `ModalPanel` reutilizable para estandarizar la apariencia de todas las ventanas emergentes (Onboarding, Perfil, Memory Lane).
+#### The Creative Explorer
+- Uses reflection to develop ideas and creative projects
+- Appreciates the semantic search for connecting disparate thoughts
+- Values the ability to revisit and build upon previous insights
+- Interested in tracking creative evolution over time
 
-4.3. Fase 2: La Base de Conocimiento (Acceso a la Memoria) - [Implementada]
-Guardado de Conversaciones: [Implementado] Almacenamiento persistente de cada turno de la conversación.
+## 4. Feature Roadmap
 
-Generación de Resúmenes: [Implementado] Función automática que genera y almacena un resumen de la sesión.
+### 4.1. Core Platform (Implemented ✅)
 
-Interfaz de "Mi Memoria": [Implementado] Sección donde los usuarios pueden ver, leer y explorar conversaciones pasadas.
+#### Voice-Guided Reflection System
+- **Asynchronous Audio Processing:** Handles long recordings without timeouts
+- **Multi-language Support:** Spanish and English with cultural context
+- **Real-time Audio Visualization:** Visual feedback during recording
+- **Intelligent Conversation Flow:** AI maintains context throughout sessions
 
-Búsqueda Semántica Avanzada: [Implementado] Búsqueda por significado utilizando embeddings vectoriales (pgvector). Permite al usuario encontrar los pensamientos más relevantes a una pregunta en lenguaje natural, cumpliendo y superando el requisito de una búsqueda por palabra clave.
+#### Knowledge Base & Memory System
+- **Persistent Storage:** All conversations saved with metadata
+- **Automatic Summarization:** AI-generated session summaries
+- **Conversation History:** Chronological view of all reflection sessions
+- **Data Export:** Users can export their reflection data
 
-Navegación desde Resultados: [Implementado] Los resultados de la búsqueda son clickables y navegan directamente a la conversación correspondiente, replicando la experiencia de usuario de `MemoryLane`.
+#### Advanced Search Capabilities
+- **Semantic Search:** Vector-based search using AI embeddings
+- **Keyword Search:** Traditional text-based search functionality
+- **Meta-Reflection:** AI analysis of search results to answer pattern questions
+- **Cross-Reference Navigation:** Click-through from search results to full conversations
 
-4.4. Fase 3: Insights Activos (Diálogo con la Memoria)
+### 4.2. Analytics & Insights Platform (Implemented ✅)
 
-Interfaz "Pregúntale a tu Pulpa": Crear una nueva interfaz de chat que permita a los usuarios hacer preguntas en lenguaje natural sobre su propio historial de reflexiones.
+#### Automated Periodic Analysis
+- **Weekly Summaries:** Generated every Monday with key themes and patterns
+- **Monthly Deep Dives:** Comprehensive analysis with growth insights
+- **Emotional Pattern Recognition:** Tracking mood and emotional evolution
+- **Theme Identification:** Automatic categorization of reflection topics
 
-Integración de Contexto Histórico: Permitir que la IA principal utilice los resultados de la búsqueda semántica como contexto para responder a las preguntas del usuario sobre sus propios patrones de pensamiento.
+#### Long-term Persona Development
+- **Psychological Profiling:** AI-generated personality insights based on reflection patterns
+- **Evolution Tracking:** How user's thinking and concerns change over time
+- **Context Enhancement:** Persona informs future AI conversations for better personalization
+- **Privacy Controls:** Users control how their persona is used and stored
 
-5. Historias de Usuario por Fase
-5.1. Historias de la Funcionalidad Central (Implementadas)
-Como usuario, quiero iniciar una nueva sesión de reflexión para poder hablar sobre mi día.
+#### Enhanced AI Context System
+- **Multi-layered Context:** Combines profile + persona + recent summaries
+- **Temporal Awareness:** AI understands user's current life phase and recent patterns
+- **Adaptive Questioning:** Questions become more sophisticated as the AI learns about the user
+- **Cultural Sensitivity:** Responses adapted to user's language and cultural context
 
-Como usuario, quiero que la IA me haga preguntas reflexivas basadas en mi última declaración para poder profundizar en mis pensamientos.
+### 4.3. Phase 3: Advanced Analytics & Visualization (Planned)
 
-Como usuario, quiero que mis palabras habladas sean transcritas con precisión para poder ver lo que he dicho.
+#### Visual Analytics Dashboard
+- **Emotional Journey Maps:** Visual representation of emotional patterns over time
+- **Theme Evolution Charts:** How topics of reflection change and develop
+- **Growth Metrics:** Quantified measures of self-awareness and personal development
+- **Insight Correlation:** Connections between different areas of reflection
 
-5.2. Historias para la Fase 2 (Base de Conocimiento)
-Como usuario, quiero que toda mi sesión (audio y texto) se guarde automáticamente para no perder mis reflexiones.
+#### Advanced Meta-Reflection
+- **Pattern Prediction:** AI suggests areas for future exploration based on patterns
+- **Goal Alignment Analysis:** How reflections align with stated personal goals
+- **Blind Spot Identification:** Areas where user might benefit from deeper reflection
+- **Comparative Analysis:** How user's patterns compare to anonymized population data
 
-Como usuario, quiero poder ver una lista de mis conversaciones pasadas para recordar sobre qué he reflexionado.
+### 4.4. Phase 4: Integration & Expansion (Future)
 
-Como usuario, quiero poder leer la transcripción completa de una conversación antigua para revivir una idea en detalle.
+#### Content Generation
+- **Insight Articles:** AI-generated articles based on user's reflection patterns
+- **Personal Newsletters:** Weekly/monthly summaries in newsletter format
+- **Goal Setting Assistance:** AI-recommended goals based on reflection insights
+- **Decision Support:** AI analysis to help with important life decisions
 
-Como usuario, quiero que la IA resuma una sesión para poder recordar rápidamente sus puntos principales.
+#### Collaboration Features
+- **Therapist Integration:** Secure sharing of insights with mental health professionals
+- **Coach Collaboration:** Tools for working with life coaches or mentors
+- **Anonymous Community:** Option to share insights anonymously for mutual learning
+- **Family Reflection:** Shared reflection spaces for families or couples
 
-Como usuario, quiero poder buscar en mis sesiones pasadas usando lenguaje natural para encontrar pensamientos específicos y relevantes.
+#### Platform Extensions
+- **Mobile Applications:** Native iOS and Android apps with offline capabilities
+- **API Access:** Developer API for integration with other wellness tools
+- **Wearable Integration:** Connection with fitness trackers and health monitors
+- **Calendar Integration:** Automatic reflection prompts based on calendar events
 
-Como usuario, cuando veo un resultado de búsqueda interesante, quiero poder hacer clic en él para navegar directamente a la conversación completa y entender el contexto original.
+## 5. User Stories by Phase
 
-5.3. Historias para la Fase 3 (Insights Activos)
-Como usuario, quiero preguntarle a la aplicación "¿Qué es lo que más me ha preocupado este mes?" para identificar patrones emocionales.
+### 5.1. Core Platform Stories (Implemented ✅)
 
-Como usuario, quiero saber "¿Qué ideas he tenido sobre el 'proyecto X' a lo largo del tiempo?" para ver la evolución de mi pensamiento.
+**Voice Interaction:**
+- As a user, I want to start a reflection session by speaking naturally so I can express my thoughts without typing
+- As a user, I want the AI to ask thoughtful follow-up questions so I can explore my thoughts more deeply
+- As a user, I want to hear the AI's responses in a natural voice so the conversation feels more personal
 
-Como usuario, quiero que la IA use mis reflexiones pasadas para ayudarme a redactar un artículo sobre un tema recurrente en mi vida.
+**Knowledge Management:**
+- As a user, I want all my reflections automatically saved so I never lose important insights
+- As a user, I want to search through my past reflections using natural language so I can find relevant thoughts easily
+- As a user, I want to see summaries of my reflection sessions so I can quickly recall key insights
 
-6. Consideraciones Técnicas
-Frontend (UI): React / TypeScript.
+### 5.2. Analytics Platform Stories (Implemented ✅)
 
-Lógica de Backend / Serverless: Supabase Edge Functions (Deno / TypeScript).
+**Pattern Recognition:**
+- As a user, I want to receive weekly summaries of my reflections so I can see patterns in my thinking
+- As a user, I want the AI to identify emotional patterns so I can better understand my mental health trends
+- As a user, I want to ask questions about my reflection patterns and get AI-powered insights
 
-Base de Datos: Supabase PostgreSQL (con la extensión pgvector para la Fase 2).
+**Personalization:**
+- As a user, I want the AI to remember my communication style so conversations feel more natural over time
+- As a user, I want the AI to understand my goals and context so it can ask more relevant questions
+- As a user, I want my reflection history to inform future conversations so I don't repeat the same insights
 
-APIs de IA: Google Cloud Speech-to-Text, Google Gemini Pro, ElevenLabs.
+### 5.3. Advanced Analytics Stories (Planned)
 
-7. Iteraciones Futuras / Visión
-Una vez completado el roadmap principal, la visión a largo plazo podría incluir:
+**Visual Insights:**
+- As a user, I want to see visual charts of my emotional journey so I can understand my patterns better
+- As a user, I want to track how my thinking on specific topics has evolved over time
+- As a user, I want to see correlations between different areas of my life through my reflections
 
-Visualización de Datos: Gráficos y visualizaciones de patrones de pensamiento y tendencias emocionales a lo largo del tiempo.
+**Predictive Insights:**
+- As a user, I want the AI to suggest new areas for reflection based on my patterns
+- As a user, I want to receive alerts when my reflection patterns indicate I might need support
+- As a user, I want the AI to help me set goals based on insights from my reflections
 
-Generación Sofisticada de Contenido: Generación de artículos de formato largo o guiones utilizando marcos narrativos (Hero's Journey) a partir de las experiencias del usuario.
+### 5.4. Integration Stories (Future)
 
-Integración con Arte Visual: Sugerir temas para nuevas obras de arte basadas en las reflexiones del usuario.
+**Professional Integration:**
+- As a user, I want to securely share reflection insights with my therapist so our sessions are more productive
+- As a user, I want to export my reflection data so I can use it with other wellness tools
+- As a user, I want to integrate my reflections with my calendar so I can see how events affect my thinking
 
-Aplicación Dedicada: Una aplicación de escritorio o móvil para una experiencia más integrada.
+**Content Creation:**
+- As a user, I want to generate articles based on my reflections so I can share my insights with others
+- As a user, I want to create personal development plans based on my reflection patterns
+- As a user, I want to track progress on my goals using insights from my reflections
 
-Características de Comunidad/Compartir: Opciones para compartir de forma segura reflexiones o contenido generado con coaches, terapeutas o colaboradores.
+## 6. Technical Requirements
 
-8. Métricas de Éxito
-Compromiso: Uso diario/semanal consistente por parte del usuario.
+### 6.1. Performance Requirements
+- **Response Time:** AI responses within 10 seconds for 95% of requests
+- **Audio Processing:** Support for recordings up to 30 minutes
+- **Search Performance:** Semantic search results within 2 seconds
+- **Uptime:** 99.9% availability for core reflection features
 
-Profundidad de la Reflexión: Evaluación subjetiva de cuán profundamente la IA impulsa la introspección.
+### 6.2. Security Requirements
+- **Data Encryption:** All user data encrypted at rest and in transit
+- **Authentication:** Secure user authentication with session management
+- **Privacy:** Users own their data and can export or delete it at any time
+- **Compliance:** GDPR and CCPA compliant data handling
 
-Utilidad de la Base de Conocimiento: Frecuencia con la que los usuarios revisan y buscan en sus reflexiones pasadas.
+### 6.3. Scalability Requirements
+- **User Growth:** Support for 100,000+ active users
+- **Data Volume:** Handle millions of reflection messages and embeddings
+- **Geographic Distribution:** Global CDN for optimal performance
+- **API Limits:** Efficient use of third-party AI services to manage costs
 
-Estabilidad Técnica: Fiabilidad de la transcripción, las respuestas de la IA y el almacenamiento de datos.
+### 6.4. Integration Requirements
+- **AI Services:** Google Cloud Speech-to-Text, Gemini Pro, ElevenLabs TTS
+- **Database:** PostgreSQL with pgvector extension for semantic search
+- **Authentication:** Supabase Auth with social login options
+- **Deployment:** Netlify for frontend, Supabase for backend services
+
+## 7. Success Metrics
+
+### 7.1. Engagement Metrics
+- **Daily Active Users:** Target 70% of registered users active weekly
+- **Session Duration:** Average reflection session of 10-15 minutes
+- **Retention Rate:** 80% of users return within 7 days of first session
+- **Feature Adoption:** 60% of users use semantic search within first month
+
+### 7.2. Quality Metrics
+- **User Satisfaction:** Net Promoter Score (NPS) above 50
+- **AI Quality:** 90% of users rate AI responses as helpful or very helpful
+- **Technical Performance:** 95% of sessions complete without technical issues
+- **Data Accuracy:** 95% accuracy in speech-to-text transcription
+
+### 7.3. Growth Metrics
+- **User Acquisition:** 20% month-over-month growth in new users
+- **Organic Growth:** 40% of new users come from referrals
+- **Content Generation:** Users create average of 3 reflections per week
+- **Insight Utilization:** 70% of users review their periodic summaries
+
+### 7.4. Business Metrics
+- **Cost Efficiency:** AI service costs under 30% of revenue
+- **Support Load:** Less than 5% of users require customer support
+- **Data Export:** Less than 1% of users export data (indicating satisfaction)
+- **Feature Requests:** Prioritize features requested by 20%+ of user base
+
+## 8. Risk Assessment
+
+### 8.1. Technical Risks
+- **AI Service Reliability:** Dependence on third-party AI services
+- **Data Privacy:** Handling sensitive personal reflection data
+- **Scalability:** Managing costs as user base grows
+- **Performance:** Maintaining response times with complex AI processing
+
+### 8.2. Product Risks
+- **User Adoption:** Users may prefer traditional journaling methods
+- **AI Quality:** AI responses may not meet user expectations for depth
+- **Privacy Concerns:** Users may be hesitant to share personal thoughts with AI
+- **Competition:** Established wellness and journaling apps
+
+### 8.3. Business Risks
+- **Monetization:** Finding sustainable revenue model for personal reflection tool
+- **Regulatory:** Changing privacy regulations affecting data handling
+- **Market Size:** Limited market for AI-powered reflection tools
+- **User Retention:** Maintaining long-term engagement with reflection practice
+
+## 9. Future Vision
+
+### 9.1. Long-term Goals (2-3 years)
+- **Personal AI Companion:** Each user has a deeply personalized AI that understands their unique psychology
+- **Insight Marketplace:** Users can anonymously share insights to help others with similar patterns
+- **Professional Tools:** Specialized versions for therapists, coaches, and HR professionals
+- **Research Platform:** Anonymized data contributes to research on human psychology and well-being
+
+### 9.2. Technology Evolution
+- **Advanced AI Models:** Integration with next-generation language models for even more sophisticated conversations
+- **Multimodal Input:** Support for video, images, and biometric data in addition to voice
+- **Real-time Analysis:** Live emotional state detection and adaptive questioning
+- **Predictive Wellness:** Early warning systems for mental health concerns based on reflection patterns
+
+### 9.3. Platform Expansion
+- **Enterprise Solutions:** Team reflection tools for organizations
+- **Educational Integration:** Reflection tools for students and educators
+- **Healthcare Integration:** Tools for mental health professionals and patients
+- **Research Partnerships:** Collaboration with universities and research institutions
+
+---
+
+This PRD represents the current state and future vision of pulpa.work as a comprehensive platform for AI-powered self-reflection and personal growth, with a focus on privacy, personalization, and actionable insights.

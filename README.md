@@ -1,196 +1,301 @@
-# Pulpa.work - Voice-Guided Self-Reflection App
+# Pulpa.work - AI-Powered Voice Reflection Platform
 
-*Última actualización: 29 de junio de 2025, 20:06:24 (GMT-3)*
+*Last updated: December 30, 2024, 20:06:24 (GMT-3)*
 
-Pulpa.work is a web application designed for voice-guided self-reflection. It acts as an AI-powered "stoic interviewer" that helps users delve deeper into their daily thoughts and experiences through a spoken dialogue, building a searchable, long-term knowledge base of their insights.
+Pulpa.work is a sophisticated web application for voice-guided self-reflection that combines AI conversation, semantic search, and automated analytics to help users develop deeper self-awareness and track personal growth over time.
 
-## Core Features
+## 🌟 Core Features
 
-### 1. Conversational AI Flow
--   **Voice Recording**: Captures user audio via the browser's `MediaRecorder`.
--   **Asynchronous Transcription**: Uses a two-step process (`/transcribe` and `/get-transcription-status` functions) with Google Cloud Speech-to-Text to handle long audio without timeouts.
--   **Contextual AI Inquiry**: The `/chat-ai` function uses Google Gemini, leveraging `systemInstruction` and user profile data (`full_name`, `role`, `goals`) to provide personalized and context-aware follow-up questions.
--   **Reliable Speech Synthesis**: The `/text-to-speech` function securely calls the ElevenLabs API and returns audio as a Base64 string within a JSON object to prevent data corruption.
+### 🎙️ Voice-Guided Reflection
+- **Natural Conversation:** Speak naturally with an AI that adapts to your communication style
+- **Asynchronous Processing:** Handle long recordings without timeouts using Google Cloud Speech-to-Text
+- **Multi-language Support:** Full support for Spanish and English with cultural context
+- **Real-time Visualization:** Audio level monitoring and recording duration display
 
-### 2. Knowledge Base & Memory
-Beyond the real-time conversation, Pulpa.work is designed to build a long-term, searchable knowledge base of the user's thoughts.
+### 🧠 AI-Powered Insights
+- **Contextual Conversations:** AI maintains deep context using your profile, goals, and reflection history
+- **Long-term Persona:** Automatically developed psychological profile that evolves with your reflections
+- **Adaptive Questioning:** Questions become more sophisticated as the AI learns about you
+- **Meta-Reflection:** Ask questions about your patterns and get AI-powered insights
 
--   **Persistent Storage**: Every conversation, including each user message and AI response, is saved to the `conversations` and `messages` tables in the database.
--   **Automatic Summarization**: At the end of a session, the `summarize-conversation` function is triggered to generate a concise, AI-powered summary of the key insights, which is stored with the conversation.
--   **Memory Lane Interface**: The `MemoryLane.tsx` component provides a dedicated view for users to browse, read, and revisit their past conversations and summaries.
--   **Dual-Mode Search**: The application implements two powerful search methods:
-    1.  **Keyword Search**: A simple text search to find conversations containing specific words.
-    2.  **Semantic Search**: An advanced search powered by the `semantic-search` function and `pgvector`. It allows users to ask questions in natural language and find the most conceptually relevant thoughts, even if the exact words don't match.
+### 🔍 Advanced Search & Discovery
+- **Semantic Search:** Find conceptually similar thoughts using vector embeddings, not just keywords
+- **Pattern Analysis:** AI analyzes search results to help you understand recurring themes
+- **Cross-Reference Navigation:** Click through from insights to original conversations
+- **Dual Search Modes:** Both semantic and traditional keyword search available
 
-### 3. User Management & Onboarding
--   **Guided Onboarding**: A mandatory, one-time flow guides new users to set up their profile, including `full_name`, `role`, `goals`, and voice/language preferences.
--   **Profile Management**: Users can edit their profile at any time, and this data is used to personalize the AI's interaction.
--   **Secure Authentication**: All core Edge Functions are protected and require a valid user JWT.
+### 📊 Automated Analytics
+- **Weekly Summaries:** Automatically generated every Monday with key themes and patterns
+- **Monthly Deep Dives:** Comprehensive analysis with emotional patterns and growth insights
+- **Theme Tracking:** Identify how your concerns and interests evolve over time
+- **Emotional Intelligence:** Track emotional patterns and mental health trends
 
-## Tech Stack
+## 🏗️ Technical Architecture
 
--   **Frontend**: React, TypeScript, Vite, TailwindCSS
--   **Backend & DB**: Supabase (PostgreSQL, Auth, Edge Functions, pgvector)
--   **External APIs**: Google Cloud Speech-to-Text, Google Gemini Pro, ElevenLabs
+### Frontend Stack
+- **React 18** with TypeScript for type safety
+- **Vite** for fast development and optimized builds
+- **TailwindCSS** for responsive, modern design
+- **Zustand** for state management
+- **React Router** for navigation
+- **Lucide React** for consistent iconography
 
----
+### Backend Infrastructure
+- **Supabase** for database, authentication, and serverless functions
+- **PostgreSQL** with pgvector extension for semantic search
+- **Deno** runtime for Edge Functions
+- **Google Cloud** Speech-to-Text for transcription
+- **Google Gemini Pro** for AI conversations
+- **ElevenLabs** for natural voice synthesis
 
-## Getting Started
+### AI & Analytics
+- **Vector Embeddings:** Google text-embedding-004 for semantic search
+- **Automated Scheduling:** pg_cron for periodic summary generation
+- **Context Management:** Multi-layered AI context with persona and summaries
+- **Pattern Recognition:** Advanced analytics for emotional and thematic patterns
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
--   [Node.js](https://nodejs.org/) (v18 or later)
--   [Supabase CLI](https://supabase.com/docs/guides/cli)
--   API keys for Google Cloud and ElevenLabs.
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- API keys for Google Cloud, Google AI, and ElevenLabs
 
-### 1. Clone the Repository
+### 1. Clone and Install
 
 ```bash
 git clone <repository-url>
 cd pulpa-work
-```
-
-### 2. Install Dependencies
-
-```bash
 npm install
 ```
 
-### 3. Set Up Supabase
-
-1.  **Start Supabase services**:
-
-    ```bash
-    npx supabase start
-    ```
-
-2.  **Link your local project to your Supabase project** (if you have one):
-
-    ```bash
-    npx supabase link --project-ref <your-project-ref>
-    ```
-
-3.  **Push database migrations**:
-
-    ```bash
-    npx supabase db push
-    ```
-
-### 4. Configure Environment Variables
-
-Create a `.env` file in the root of the project by copying the example file:
+### 2. Set Up Supabase
 
 ```bash
-# For Windows
-copy .env.example .env
-# For macOS/Linux
-cp .env.example .env
+# Start local Supabase services
+npx supabase start
+
+# Link to your Supabase project (optional)
+npx supabase link --project-ref <your-project-ref>
+
+# Apply database migrations
+npx supabase db push
 ```
 
-Then, create a `.env` file in the `supabase` directory for the Edge Functions:
+### 3. Configure Environment Variables
 
-```bash
-# For Windows
-copy supabase\.env.example supabase\.env
-# For macOS/Linux
-cp supabase/.env.example supabase/.env
+Create `.env` in the project root:
+
+```env
+# Supabase Configuration (from your project settings)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-You will need to populate these files with your specific keys and credentials.
+Create `supabase/.env` for Edge Functions:
 
-**Root `.env` (for Vite/Frontend):**
-
-```
-# Get these from your Supabase project's "API" settings
-VITE_SUPABASE_URL=https://awqkjxprdocadfmnjjrz.supabase.co
-VITE_SUPABASE_ANON_KEY=your-cloud-project-public-anon-key
-```
-
-**`supabase/.env` (for Edge Functions):**
-
-```
-# Get this from your Google Cloud project
-GOOGLE_API_KEY=your-google-api-key-for-gemini
-
-# Get this from your ElevenLabs account
-ELEVENLABS_API_KEY=your-elevenlabs-api-key
-
-# This is the full JSON content of your Google Cloud Service Account key
-# IMPORTANT: It should be a single line string. You can use an online tool to convert your JSON key to a single line.
-GOOGLE_SERVICE_ACCOUNT_CREDENTIALS='{"type": "service_account", "project_id": "...", ...}'
-
-# The name of your Google Cloud Storage bucket for audio files
+```env
+# Google AI Services
+GOOGLE_API_KEY=your-google-api-key
+GOOGLE_SERVICE_ACCOUNT_CREDENTIALS='{"type": "service_account", ...}'
 GCS_BUCKET_NAME=your-gcs-bucket-name
+
+# ElevenLabs Text-to-Speech
+ELEVENLABS_API_KEY=your-elevenlabs-api-key
 ```
 
-### 5. Deploy Supabase Functions
-
-Deploy your Edge Functions to the Supabase cloud:
+### 4. Deploy Edge Functions
 
 ```bash
-# Deploy a specific function after making changes
-npx supabase functions deploy <function-name>
-
-# Or deploy all functions
+# Deploy all functions
 npx supabase functions deploy
+
+# Or deploy specific functions
+npx supabase functions deploy transcribe
+npx supabase functions deploy chat-ai
+npx supabase functions deploy text-to-speech
 ```
 
-### 6. Run the Development Server
-
-Start the Vite development server:
+### 5. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-The application should now be running on `http://localhost:5173`.
+The application will be available at `http://localhost:5173`.
+
+## 📋 Detailed Data Flow
+
+### Recording to Insight Pipeline
+
+1. **Audio Capture** → Browser MediaRecorder API with real-time visualization
+2. **Async Transcription** → Google Cloud Speech-to-Text with status polling
+3. **Message Storage** → Supabase with vector embedding generation
+4. **AI Response** → Google Gemini with enhanced context (persona + summaries)
+5. **Voice Synthesis** → ElevenLabs TTS with robust audio handling
+6. **Periodic Analysis** → Automated weekly/monthly summaries via cron jobs
+7. **Persona Evolution** → Long-term psychological profile updates
+8. **Enhanced Context** → Enriched context feeds back into future conversations
+
+### Search and Discovery Flow
+
+1. **User Query** → Semantic search interface with natural language
+2. **Vector Search** → pgvector similarity matching with relevance scoring
+3. **Result Presentation** → Ranked results with similarity percentages
+4. **Meta-Analysis** → AI analyzes patterns across search results
+5. **Insight Generation** → Personalized reflections on user patterns
+6. **Navigation** → Click-through to source conversations for context
+
+## 🗄️ Database Schema
+
+### Core Tables
+
+- **`profiles`** - Extended user profiles with preferences and long-term persona
+- **`conversations`** - Reflection sessions with AI-generated summaries
+- **`messages`** - Individual messages with vector embeddings for search
+- **`periodic_summaries`** - Automated weekly/monthly analytics with insights
+
+### Advanced Features
+
+- **Vector Search** - pgvector extension for semantic similarity
+- **Automated Analytics** - pg_cron for scheduled summary generation
+- **RLS Security** - Row-level security ensuring data privacy
+- **Atomic Operations** - Transactional message storage with embeddings
+
+## 🔧 Edge Functions
+
+### Core Functions
+
+| Function | Purpose | Features |
+|----------|---------|----------|
+| `transcribe` | Start async audio transcription | GCS upload, long-running recognition |
+| `get-transcription-status` | Poll transcription progress | Status checking, file cleanup |
+| `chat-ai` | AI conversation with context | Enhanced prompting, meta-reflection |
+| `text-to-speech` | Voice synthesis | Multi-voice, robust streaming |
+| `semantic-search` | Vector-based search | pgvector integration, relevance scoring |
+| `add-message` | Store messages with embeddings | Atomic operations, error handling |
+| `generate-periodic-summary` | Automated analytics | Weekly/monthly insights, persona updates |
+
+### Shared Utilities
+
+- **`google-helpers.ts`** - Authentication, GCS operations, Speech-to-Text
+- **`types.ts`** - TypeScript interfaces for Google APIs
+- **`cors.ts`** - Standardized CORS headers
+
+## 🎨 UI/UX Features
+
+### Modern Design System
+- **Glassmorphism** - Translucent panels with backdrop blur effects
+- **Responsive Layout** - Optimized for mobile and desktop
+- **Real-time Feedback** - Audio visualization and progress indicators
+- **Smooth Animations** - Micro-interactions and state transitions
+
+### User Experience
+- **Guided Onboarding** - Step-by-step setup for new users
+- **Voice Selection** - Multiple voices for different languages
+- **Conversation Panel** - Elegant chat interface with message history
+- **Memory Lane** - Advanced search interface with dual search modes
+
+## 📊 Analytics & Insights
+
+### Automated Analysis
+- **Weekly Summaries** - Generated every Monday at 02:00 UTC
+- **Monthly Reports** - First of each month at 03:00 UTC
+- **Pattern Recognition** - Emotional trends and thematic evolution
+- **Growth Tracking** - Personal development insights over time
+
+### AI Context Enhancement
+- **Long-term Persona** - Psychological profile based on reflection patterns
+- **Recent Context** - Integration of recent summaries into conversations
+- **Adaptive Responses** - AI learns communication preferences
+- **Cultural Awareness** - Language-appropriate responses and cultural context
+
+## 🔒 Security & Privacy
+
+### Data Protection
+- **End-to-end Encryption** - All data encrypted in transit and at rest
+- **Row-level Security** - Database policies ensure data isolation
+- **JWT Authentication** - Secure token-based authentication
+- **API Key Protection** - Server-side API key management
+
+### Privacy Controls
+- **Data Ownership** - Users own and control their reflection data
+- **Export Capabilities** - Full data export in standard formats
+- **Deletion Rights** - Complete data removal on request
+- **Anonymization** - Optional anonymous analytics participation
+
+## 🚀 Deployment
+
+### Frontend (Netlify)
+```bash
+# Build for production
+npm run build
+
+# Deploy to Netlify (automatic via Git integration)
+```
+
+### Backend (Supabase)
+```bash
+# Deploy all Edge Functions
+npx supabase functions deploy
+
+# Apply database migrations
+npx supabase db push
+```
+
+### Environment Setup
+- **Production Environment Variables** - Configure in Netlify dashboard
+- **Supabase Secrets** - Set in Supabase dashboard under Edge Functions
+- **Domain Configuration** - Custom domain setup in Netlify
+
+## 📈 Performance Optimization
+
+### Frontend Optimization
+- **Code Splitting** - Lazy loading for optimal bundle sizes
+- **Image Optimization** - WebP format with fallbacks
+- **Caching Strategy** - Service worker for offline capabilities
+- **CDN Distribution** - Global content delivery via Netlify
+
+### Backend Optimization
+- **Database Indexing** - Optimized indexes for common queries
+- **Vector Search** - HNSW indexes for fast similarity search
+- **Function Caching** - Intelligent caching for AI responses
+- **Resource Management** - Efficient memory and CPU usage
+
+## 🔮 Future Roadmap
+
+### Planned Features
+- **Visual Analytics** - Charts and graphs of reflection patterns
+- **Mobile Apps** - Native iOS and Android applications
+- **API Access** - Developer API for third-party integrations
+- **Collaboration Tools** - Sharing insights with coaches/therapists
+
+### Technical Improvements
+- **Real-time Features** - Live collaboration and instant insights
+- **Advanced AI** - Integration with next-generation language models
+- **Offline Support** - Local storage and sync capabilities
+- **Performance** - Further optimization for global scale
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines for:
+- Code style and standards
+- Testing requirements
+- Pull request process
+- Issue reporting
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+- **Documentation** - Comprehensive guides in the `/docs` folder
+- **Issues** - Report bugs and request features via GitHub Issues
+- **Community** - Join our Discord for discussions and support
+- **Email** - Contact us at support@pulpa.work
 
 ---
 
-## Detailed Data Flow
-
-This section provides a step-by-step technical breakdown of a single user interaction cycle, including database operations.
-
-### Phase 1: Audio Recording (Frontend)
-1.  **Trigger**: User holds the recording button.
-2.  **Action**: `useAppLogic.ts` initializes `MediaRecorder`.
-3.  **Completion**: User releases the button, `mediaRecorder.stop()` is called.
-
-### Phase 2: Asynchronous Transcription & Conversation Creation (Frontend → Supabase → Google STT)
-1.  **Trigger**: `onstop` event fires. The audio `Blob` is created.
-2.  **API Call (Create Conversation)**: If it's the first message of a new session, the frontend first calls a function (`createConversation`) to insert a new row into the `conversations` table, getting back a `conversation_id`.
-3.  **API Call (Start Transcription)**: The audio `Blob` is sent to the `/transcribe` function.
-4.  **Backend Logic (`/transcribe`)**: Validates JWT, uploads audio to GCS, starts the Google STT job, and returns an `operationName`.
-5.  **API Call (Polling for Status)**: Frontend polls `/get-transcription-status`.
-6.  **Backend Logic (`/get-transcription-status`)**: Checks job status. On completion, returns the transcript and deletes the GCS file.
-
-### Phase 3: Message Persistence (Frontend → Supabase)
-1.  **Trigger**: The frontend receives a final text string to be saved (either a user's transcript or an AI's response).
-2.  **API Call (Save Message)**: The frontend calls the `/add-message` Edge Function, sending the `conversation_id`, the `text` of the message, and the `role` (`'user'` or `'model'`).
-3.  **Backend Logic (`/add-message`)**: This is the core of the new architecture.
-    -   Validates the user's JWT.
-    -   Calls the `/generate-embedding` function to create a vector embedding for the message text.
-    -   Calls the `insert_message_with_embedding` database function (RPC) to save the message and its embedding in a single, atomic transaction.
-
-### Phase 4: AI Chat Response (Frontend → Supabase → Google Gemini)
-1.  **Trigger**: The user's message has been successfully saved via `/add-message`.
-2.  **API Call**: The frontend sends the conversation history and user profile to the `/chat-ai` function.
-3.  **Backend Logic (`/chat-ai`)**: Validates JWT and uses `systemInstruction` and profile data to generate a contextual response from Gemini.
-4.  **Save AI Message**: The frontend receives the AI's text response and triggers **Phase 3** again, this time with the `role` set to `'model'`.
-
-### Phase 4: Text-to-Speech (Frontend → Supabase → ElevenLabs)
-1.  **Trigger**: Frontend receives the AI response.
-2.  **API Call**: The AI's text is sent to the `/text-to-speech` function.
-3.  **Backend Logic (`/text-to-speech`)**:
-    -   Validates JWT.
-    -   Calls ElevenLabs API.
-    -   Reads the audio stream, encodes it to Base64, and returns it in a JSON object.
-4.  **Playback**: Frontend decodes the Base64 audio and plays it.
-
-### Phase 5: Session Summarization (Optional, e.g., on session end)
-1.  **Trigger**: User ends the session (e.g., closes the conversation view).
-2.  **API Call**: The frontend calls the `/summarize-conversation` function with the `conversation_id`.
-3.  **Backend Logic (`/summarize-conversation`)**:
-    -   Fetches all messages for the conversation.
-    -   Sends the full text to Gemini to generate a summary.
-    -   Updates the `summary` column in the `conversations` table for that `conversation_id`.
+**Built with ❤️ using modern web technologies and AI to help people discover deeper insights about themselves through reflection.**
