@@ -1,6 +1,6 @@
 # Pulpa.work - AI-Powered Voice Reflection Platform
 
-*Last updated: December 30, 2024, 20:06:24 (GMT-3)*
+*Last updated: June 29, 2025, 20:06:24 (GMT-3)*
 
 Pulpa.work is a sophisticated web application for voice-guided self-reflection that combines AI conversation, semantic search, and automated analytics to help users develop deeper self-awareness and track personal growth over time.
 

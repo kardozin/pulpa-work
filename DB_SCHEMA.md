@@ -1,6 +1,6 @@
 # 🧬 Database Schema Documentation
 
-*Last updated: December 30, 2024, 20:06:24 (GMT-3)*
+*Last updated: June 29, 2025, 20:06:24 (GMT-3)*
 
 This document describes the complete database architecture, security policies, and automated logic for the pulpa.work project in Supabase. It serves as the definitive source of truth for the data schema.
 
@@ -109,13 +109,17 @@ These functions provide secure, optimized operations for the application.
 - `match_count`: Maximum results to return
 **Returns:** Array of matching messages with similarity scores.
 
-#### 3. `get_user_enhanced_context(p_user_id)` (NEW)
+#### 3. `get_user_context_for_ai(p_user_id)` (NEW)
 **Purpose:** Retrieve comprehensive user context for AI conversations.
-**Returns:** Formatted string with:
-- Long-term psychological persona
-- Recent periodic summaries
-- Key themes and patterns
-- Emotional insights
+**Returns:** JSON object with:
+- Profile information (name, role, goals, long-term persona)
+- Recent weekly and monthly summaries
+- Usage statistics
+- Formatted for AI consumption
+
+#### 4. `insert_periodic_summary(...)` (NEW)
+**Purpose:** Atomically insert or update periodic summaries with conflict handling.
+**Features:** Handles duplicate periods gracefully with upsert logic.
 
 ### Trigger Functions
 

@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD) - pulpa.work (Version 3.0)
 
-*Last updated: December 30, 2024, 20:21:14 (GMT-3)*
+*Last updated: June 29, 2025, 20:21:14 (GMT-3)*
 
 ## 1. Introduction
 
