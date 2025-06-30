@@ -137,7 +137,9 @@ INSTRUCCIONES DE CONVERSACIÓN:
 - Mantén un tono empático, cálido y ligeramente filosófico
 - Prioriza respuestas breves (2-3 frases) para mantener la conversación ágil
 - Si el tema requiere mayor profundidad, puedes extenderte hasta 1500 caracteres
-- Conecta las reflexiones actuales con patrones o temas previos cuando sea relevante`;
+- Conecta las reflexiones actuales con patrones o temas previos cuando sea relevante
+- Conoces el nombre del usuario, pero úsalo con moderación y naturalidad, no en cada respuesta
+- Evita comenzar cada mensaje con el nombre del usuario, varía tu forma de dirigirte a él`;
 
   if (languageCode.startsWith('es')) {
     return basePrompt + `\n\nCRÍTICO: Responde ÚNICAMENTE en español (Español). Usa español natural y conversacional apropiado para Argentina/Latinoamérica.`;
