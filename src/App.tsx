@@ -15,6 +15,27 @@ import MemoryLane from './components/MemoryLane';
 import ModalPanel from './components/ui/ModalPanel';
 import { MAX_TURN_DURATION } from './config/audio';
 
+// Built with Bolt Badge Component
+const BoltBadge = () => (
+  <div className="fixed bottom-4 right-4 z-50">
+    <a 
+      href="https://bolt.new" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="block transition-transform hover:scale-105"
+    >
+      <div className="bg-black text-white px-3 py-1.5 rounded-lg shadow-lg border border-gray-700 hover:border-gray-500 transition-colors">
+        <div className="flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/>
+          </svg>
+          <span className="text-xs font-medium">Built with Bolt</span>
+        </div>
+      </div>
+    </a>
+  </div>
+);
+
 function App() {
   // 1. Core Hooks Orchestration
   const auth = useAuth();
@@ -109,21 +130,7 @@ function App() {
           </div>
         </div>
         
-        {/* Built with Bolt Badge - Login Screen */}
-        <div className="fixed bottom-4 right-4 z-50">
-          <a 
-            href="https://bolt.new" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="block transition-transform hover:scale-105"
-          >
-            <img 
-              src="/logotext_poweredby_360w.png" 
-              alt="Built with Bolt" 
-              className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
-            />
-          </a>
-        </div>
+        <BoltBadge />
       </div>
     );
   }
@@ -224,21 +231,7 @@ function App() {
         </div>
       </div>
 
-      {/* Built with Bolt Badge - Main App */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <a 
-          href="https://bolt.new" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="block transition-transform hover:scale-105"
-        >
-          <img 
-            src="/logotext_poweredby_360w.png" 
-            alt="Built with Bolt" 
-            className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
-          />
-        </a>
-      </div>
+      <BoltBadge />
 
       {/* Memory Lane Modal */}
       {showMemoryLane && (
