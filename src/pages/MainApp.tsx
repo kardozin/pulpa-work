@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { Brain, Mic, Pause, Play, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText } from 'lucide-react';
+import { Brain, Mic, MicOff, Volume2, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText, Square } from 'lucide-react';
 import { useProfile } from '../hooks/useProfile';
 import ProfileForm from '../components/Profile';
 import { useAppLogic } from '../hooks/useAppLogic';
@@ -85,7 +85,46 @@ function MainApp() {
     if (recordingState.isRecording) return 'recording';
     if (recordingState.isPlayingAudio) return 'playing';
     if (recordingState.isAiThinking || recordingState.isGeneratingAudio) return 'processing';
+    if (recordingState.isProcessing) return 'processing';
     return 'ready';
+  };
+
+  const getButtonIcon = () => {
+    const buttonState = getButtonState();
+    
+    switch (buttonState) {
+      case 'permission':
+        return <MicOff className="w-12 h-12 text-white" />;
+      case 'ready':
+        return <Mic className="w-12 h-12 text-white" />;
+      case 'recording':
+        return <Square className="w-12 h-12 text-white" />;
+      case 'playing':
+        return <Volume2 className="w-12 h-12 text-white" />;
+      case 'processing':
+        return <Loader2 className="w-12 h-12 text-white animate-spin" />;
+      default:
+        return <Mic className="w-12 h-12 text-white" />;
+    }
+  };
+
+  const getButtonColor = () => {
+    const buttonState = getButtonState();
+    
+    switch (buttonState) {
+      case 'permission':
+        return 'bg-gray-600';
+      case 'ready':
+        return 'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-2xl shadow-indigo-500/50 hover:scale-105';
+      case 'recording':
+        return 'bg-gradient-to-br from-red-500 to-orange-500 shadow-2xl shadow-red-500/50 hover:scale-105';
+      case 'playing':
+        return 'bg-gradient-to-br from-green-400 to-teal-500 shadow-2xl shadow-green-500/50 hover:scale-105';
+      case 'processing':
+        return 'bg-gradient-to-br from-gray-600 to-gray-700';
+      default:
+        return 'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-2xl shadow-indigo-500/50 hover:scale-105';
+    }
   };
 
   const buttonState = getButtonState();
@@ -177,25 +216,12 @@ function MainApp() {
             <div className={`absolute inset-0 rounded-full transition-all duration-500 ease-in-out ${isAiActive ? 'bg-purple-500/30 scale-100' : 'bg-transparent scale-90'}`}></div>
             <button 
               onClick={handleMainButtonClick}
-              disabled={!recordingState.hasPermission}
-              className={`relative w-64 h-64 rounded-full flex items-center justify-center transition-all duration-300 transform-gpu focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed
-              ${!recordingState.hasPermission ? 'bg-gray-600' : 
-              buttonState === 'recording' ? 
-                'bg-gradient-to-br from-red-500 to-orange-500 shadow-2xl shadow-red-500/50 hover:scale-105' : 
-              buttonState === 'playing' ? 
-                'bg-gradient-to-br from-green-400 to-teal-500 shadow-2xl shadow-green-500/50 hover:scale-105' : 
-              buttonState === 'processing' ? 
-                'bg-gradient-to-br from-gray-600 to-gray-700' : 
-                'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-2xl shadow-indigo-500/50 hover:scale-105'
-              }`}
+              disabled={!recordingState.hasPermission && recordingState.permissionDenied}
+              className={`relative w-64 h-64 rounded-full flex items-center justify-center transition-all duration-300 transform-gpu focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${getButtonColor()}`}
             >
               <div className="absolute inset-4 rounded-full bg-white/10 backdrop-blur-sm"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                {buttonState === 'permission' && <Mic className="w-12 h-12 text-white" />}
-                {buttonState === 'ready' && <Play className="w-12 h-12 text-white ml-2" />}
-                {buttonState === 'recording' && <Pause className="w-12 h-12 text-white" />}
-                {buttonState === 'playing' && <Pause className="w-12 h-12 text-white" />}
-                {buttonState === 'processing' && <Loader2 className="w-12 h-12 text-white animate-spin" />}
+                {getButtonIcon()}
               </div>
               {recordingState.isRecording && (
                   <div className="absolute inset-0 rounded-full border-2 border-white/30" style={{ transform: `scale(${1 + recordingState.audioLevel * 5})`, opacity: Math.max(0, 1 - recordingState.audioLevel * 5), transition: 'transform 0.1s, opacity 0.2s' }}></div>

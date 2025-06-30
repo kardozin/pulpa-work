@@ -99,23 +99,31 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
   }, []);
 
   const handleInterruptAudio = useCallback(() => {
+    console.log('🛑 Interrupting audio and resetting states...');
     cleanupAudio();
-    // Reset all processing states on interrupt to prevent getting stuck
+    
+    // Reset all processing states and make microphone ready
     setRecordingState(prev => ({
       ...prev,
       isPlayingAudio: false,
       isProcessing: false,
       isAiThinking: false,
       isGeneratingAudio: false,
-      status: 'Ready for your next thought',
+      status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed',
     }));
   }, [cleanupAudio]);
 
   const playAudio = useCallback(async (audioBlob: Blob) => {
-    console.log('Attempting to play audio blob:', audioBlob);
+    console.log('🔊 Attempting to play audio blob:', audioBlob);
     if (audioBlob.size === 0) {
       console.error('Received an empty audio blob. Skipping playback.');
-      setRecordingState(prev => ({ ...prev, isPlayingAudio: false, error: 'Received empty audio from server.' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isPlayingAudio: false, 
+        isGeneratingAudio: false,
+        error: 'Received empty audio from server.',
+        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+      }));
       return;
     }
 
@@ -127,31 +135,58 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     audioInstanceRef.current = audio;
 
     audio.onended = () => {
-      console.log('Audio finished playing.');
+      console.log('🎵 Audio finished playing - microphone should be ready now');
       cleanupAudio();
-      setRecordingState(prev => ({ ...prev, isPlayingAudio: false, status: 'Ready for your next thought' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isPlayingAudio: false, 
+        isGeneratingAudio: false,
+        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+      }));
     };
 
     audio.onerror = () => {
-      console.error('Error playing audio.');
+      console.error('❌ Error playing audio.');
       cleanupAudio();
-      setRecordingState(prev => ({ ...prev, isPlayingAudio: false, error: 'Failed to play audio response.' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isPlayingAudio: false, 
+        isGeneratingAudio: false,
+        error: 'Failed to play audio response.',
+        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+      }));
     };
 
     try {
       await audio.play();
-      setRecordingState(prev => ({ ...prev, isPlayingAudio: true, status: 'Playing response...' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isPlayingAudio: true, 
+        isGeneratingAudio: false,
+        status: 'Playing response...' 
+      }));
     } catch (error) {
-      console.error('Error trying to play audio:', error);
+      console.error('❌ Error trying to play audio:', error);
       cleanupAudio();
-      setRecordingState(prev => ({ ...prev, isPlayingAudio: false, error: 'Could not play audio.' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isPlayingAudio: false, 
+        isGeneratingAudio: false,
+        error: 'Could not play audio.',
+        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+      }));
     }
   }, [cleanupAudio]);
 
   const processAudio = useCallback(async (audioBlob: Blob) => {
     if (!profile) {
       console.error("Cannot process audio without a user profile.");
-      setRecordingState(prev => ({ ...prev, error: 'Profile not loaded.' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        error: 'Profile not loaded.',
+        isProcessing: false,
+        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+      }));
       return;
     }
 
@@ -162,7 +197,11 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       const transcription = await invokeTranscribe(audioBlob, profile.preferred_language || 'es-AR');
       if (!transcription.trim()) {
         console.log('Transcription is empty, skipping AI chat.');
-        setRecordingState(prev => ({ ...prev, isProcessing: false, status: 'Could not hear anything clearly.' }));
+        setRecordingState(prev => ({ 
+          ...prev, 
+          isProcessing: false, 
+          status: prev.hasPermission ? 'Could not hear anything clearly. Try again.' : 'Microphone access needed'
+        }));
         return;
       }
 
@@ -178,7 +217,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
           }
         } catch (error) {
           console.error("Failed to create conversation", error);
-          setRecordingState(prev => ({ ...prev, isProcessing: false, error: 'Could not start a new conversation.' }));
+          setRecordingState(prev => ({ 
+            ...prev, 
+            isProcessing: false, 
+            error: 'Could not start a new conversation.',
+            status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+          }));
           return;
         }
       }
@@ -194,11 +238,16 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         });
       } else {
         console.error("Cannot save user message without a conversation ID.");
-        setRecordingState(prev => ({ ...prev, isProcessing: false, error: 'Failed to save message.' }));
+        setRecordingState(prev => ({ 
+          ...prev, 
+          isProcessing: false, 
+          error: 'Failed to save message.',
+          status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+        }));
         return;
       }
 
-      setRecordingState(prev => ({ ...prev, isAiThinking: true, status: 'Thinking...' }));
+      setRecordingState(prev => ({ ...prev, isAiThinking: true, isProcessing: false, status: 'Thinking...' }));
 
       const aiResponseText = await invokeChatAi({ userMessage: transcription, conversationHistory: conversationHistoryRef.current, languageCode: profile.preferred_language || 'es-AR', profile });
 
@@ -215,20 +264,30 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
 
       if (!profile) {
         console.error("Cannot play audio without user profile.");
-        setRecordingState(prev => ({ ...prev, isGeneratingAudio: false, status: 'Error: Profile not found.' }));
+        setRecordingState(prev => ({ 
+          ...prev, 
+          isGeneratingAudio: false, 
+          status: prev.hasPermission ? 'Error: Profile not found.' : 'Microphone access needed'
+        }));
         return;
       }
       const languageCode = profile.preferred_language || 'es-AR';
       const voiceId = profile.preferred_voice_id || (languageCode === 'es-AR' ? 'Nln7vOQhlEPq2ntWRsrb' : 'INV8b5mw32tMbdlGeZ5E');
       const audioResponseBlob = await invokeTextToSpeech(aiResponseText, languageCode, voiceId);
 
-      setRecordingState(prev => ({ ...prev, isGeneratingAudio: false }));
       await playAudio(audioResponseBlob);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      console.error('Error processing audio:', errorMessage);
-      setRecordingState(prev => ({ ...prev, isProcessing: false, isAiThinking: false, isGeneratingAudio: false, error: `Error: ${errorMessage}` }));
+      console.error('❌ Error processing audio:', errorMessage);
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isProcessing: false, 
+        isAiThinking: false, 
+        isGeneratingAudio: false, 
+        error: `Error: ${errorMessage}`,
+        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+      }));
     }
   }, [profile, playAudio]);
 
@@ -240,6 +299,15 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         if (processAudioData && allAudioChunksRef.current.length > 0) {
           const finalAudioBlob = new Blob(allAudioChunksRef.current, { type: AUDIO_CONFIG.mimeType });
           processAudio(finalAudioBlob);
+        } else {
+          // If we're not processing audio, make sure microphone is ready
+          setRecordingState(prev => ({
+            ...prev,
+            isRecording: false,
+            audioLevel: 0,
+            recordingDuration: 0,
+            status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+          }));
         }
         // Clean up chunks for the next recording
         allAudioChunksRef.current = [];
@@ -262,7 +330,6 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       audioContextRef.current = null;
     }
 
-    setRecordingState(prev => ({ ...prev, isRecording: false, audioLevel: 0, recordingDuration: 0 }));
     hasDetectedSpeechRef.current = false;
   }, [processAudio]);
 
@@ -349,7 +416,11 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       mediaRecorder.onerror = (event: Event) => {
         const error = (event as any).error || new Error('Unknown MediaRecorder error');
         console.error('MediaRecorder error:', error);
-        setRecordingState(prev => ({ ...prev, error: `Recording failed: ${error.message}` }));
+        setRecordingState(prev => ({ 
+          ...prev, 
+          error: `Recording failed: ${error.message}`,
+          status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+        }));
       };
 
       mediaRecorder.onstart = () => {
@@ -398,17 +469,32 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
   }, [recordingState.isRecording, recordingState.isProcessing, handleInterruptAudio, monitorAudioLevel, stopStreamingRecording]);
 
   const handleMainButtonClick = useCallback(() => {
+    console.log('🔘 Main button clicked. Current state:', {
+      isRecording: recordingState.isRecording,
+      isPlayingAudio: recordingState.isPlayingAudio,
+      isProcessing: recordingState.isProcessing,
+      hasPermission: recordingState.hasPermission
+    });
+
     if (recordingState.isPlayingAudio) {
+      console.log('🛑 Interrupting audio playback');
       handleInterruptAudio();
       return;
     }
 
     if (recordingState.isRecording) {
+      console.log('🛑 Stopping recording');
       stopStreamingRecording(true);
-    } else {
+    } else if (recordingState.hasPermission && !recordingState.isProcessing && !recordingState.isAiThinking && !recordingState.isGeneratingAudio) {
+      console.log('🎙️ Starting recording');
       startRecording();
+    } else if (!recordingState.hasPermission) {
+      console.log('🎙️ Requesting microphone permission');
+      startRecording();
+    } else {
+      console.log('⏳ Cannot start recording - system is busy');
     }
-  }, [recordingState.isRecording, recordingState.isPlayingAudio, stopStreamingRecording, startRecording, handleInterruptAudio]);
+  }, [recordingState, stopStreamingRecording, startRecording, handleInterruptAudio]);
 
   // --- LIFECYCLE HOOKS ---
   useEffect(() => {
@@ -420,7 +506,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
           ...prev, 
           hasPermission: true, 
           permissionDenied: false,
-          status: 'Tap the pulse to begin your reflection'
+          status: 'Tap the microphone to begin your reflection'
         }));
         // Stop the tracks immediately, we only wanted the permission grant
         stream.getTracks().forEach(track => track.stop());
