@@ -14,6 +14,7 @@ import AnimatedBackground from '../components/AnimatedBackground';
 import MemoryLane from '../components/MemoryLane';
 import ModalPanel from '../components/ui/ModalPanel';
 import { MAX_TURN_DURATION } from '../config/audio';
+import { useEffect } from 'react';
 
 // Official Built with Bolt Badge Component (Hackathon Requirements)
 const BoltBadge = () => (
@@ -61,7 +62,13 @@ function MainApp() {
   const [showProfile, setShowProfile] = useState(false);
   const [showMemoryLane, setShowMemoryLane] = useState(false);
 
-
+  // 3. Apply no-scroll class to body when in main app
+  useEffect(() => {
+    document.body.classList.add('app-no-scroll');
+    return () => {
+      document.body.classList.remove('app-no-scroll');
+    };
+  }, []);
 
     const handleFinishOnboarding = async () => {
     // Get the final state directly from the Zustand store

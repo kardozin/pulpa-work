@@ -32,29 +32,10 @@ const BoltBadge = () => (
   </div>
 );
 
-// SUPER VISIBLE TEST SECTION
-const TestSection: React.FC = () => {
-  return (
-    <section className="py-24 px-4 bg-red-600 border-8 border-yellow-400" style={{ minHeight: '300px' }}>
-      <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-6xl font-bold text-white mb-8 animate-bounce">
-          🔥 TEST SECTION VISIBLE! 🔥
-        </h2>
-        <p className="text-3xl text-yellow-300 font-bold">
-          Time: {new Date().toLocaleTimeString()}
-        </p>
-        <p className="text-2xl text-white mt-4">
-          If you see this, the page IS updating correctly!
-        </p>
-      </div>
-    </section>
-  );
-};
-
 // Final Call to Action Section
 const FinalCTASection: React.FC = () => {
   return (
-    <section className="py-24 px-4 bg-green-600" style={{ minHeight: '400px' }}>
+    <section className="py-24 px-4">
       <div className="max-w-4xl mx-auto text-center">
         <div className="bg-gradient-to-br from-primary/20 to-purple-500/20 backdrop-blur-2xl border border-white/20 rounded-3xl p-12 lg:p-16 relative overflow-hidden">
           {/* Background decoration */}
@@ -114,15 +95,12 @@ const FinalCTASection: React.FC = () => {
 };
 
 const LandingPage: React.FC = () => {
-  console.log('🚀 LandingPage component is rendering at:', new Date().toLocaleTimeString());
-  
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden">
       <AnimatedBackground />
       
       <div className="relative z-10">
         <HeroSection />
-        <TestSection />
         <FeaturesSection />
         <HowItWorksSection />
         <TechStackSection />

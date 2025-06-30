@@ -2,7 +2,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* Removed overflow: hidden to allow scrolling */
 }
 
 @tailwind base;
@@ -204,4 +204,9 @@ html, body, #root {
     width: 100vw;
     left: 0;
   }
+}
+
+/* Specific overflow control for the main app to prevent scrolling when needed */
+.app-no-scroll {
+  overflow: hidden;
 }
