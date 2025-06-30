@@ -77,6 +77,13 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     currentConversationIdRef.current = currentConversationId;
   }, [currentConversationId]);
 
+  // Auto-show conversation when first message appears
+  useEffect(() => {
+    if (conversationHistory.length === 1 && !showConversation) {
+      setShowConversation(true);
+    }
+  }, [conversationHistory.length, showConversation]);
+
   // --- LOGIC FUNCTIONS (defined before usage in hooks) ---
   const cleanupAudio = useCallback(() => {
     if (audioInstanceRef.current) {

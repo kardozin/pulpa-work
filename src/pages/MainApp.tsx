@@ -252,33 +252,53 @@ function MainApp() {
         </ModalPanel>
       )}
 
-      {/* Conversation Bottom Sheet */}
+      {/* Conversation Bottom Sheet - Enhanced Glassmorphism */}
       <div
         className={`
           fixed bottom-4 left-4 right-4 z-30 transform transition-transform duration-500 ease-in-out
           ${showConversation ? 'translate-y-0' : 'translate-y-[calc(100%+2rem)]'}
         `}
       >
-        <div className="h-auto max-h-[45vh] max-w-4xl mx-auto bg-slate-800/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl flex flex-col p-4">
-          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-slate-700 mb-4 cursor-grab" onPointerDown={() => setShowConversation(false)}></div>
-          <div className="flex items-center justify-between pb-4 flex-shrink-0">
-            <h2 className="text-xl font-semibold text-white/90">Conversation</h2>
-            <button onClick={() => setShowConversation(false)} className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-700/50 transition-colors">
-              <X className="w-6 h-6" />
+        <div className="h-auto max-h-[45vh] max-w-4xl mx-auto bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl shadow-black/20 flex flex-col p-6">
+          {/* Drag Handle */}
+          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/20 mb-6 cursor-grab hover:bg-white/30 transition-colors" onPointerDown={() => setShowConversation(false)}></div>
+          
+          {/* Header */}
+          <div className="flex items-center justify-between pb-4 flex-shrink-0 border-b border-white/10">
+            <h2 className="text-xl font-semibold text-white/95">Conversation</h2>
+            <button 
+              onClick={() => setShowConversation(false)} 
+              className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all duration-200"
+            >
+              <X className="w-5 h-5" />
             </button>
           </div>
-          <div className="flex-grow overflow-y-auto pr-2 space-y-4">
+          
+          {/* Messages Container */}
+          <div className="flex-grow overflow-y-auto pr-2 space-y-4 mt-4">
             {conversationHistory.length === 0 && (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-slate-400">Your reflections will appear here.</p>
+              <div className="flex items-center justify-center h-full py-8">
+                <p className="text-white/50 text-center">Your reflections will appear here.</p>
               </div>
             )}
             {conversationHistory.map((message: ConversationMessage) => (
               <div key={message.id} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
-                {message.role === 'model' && <div className="w-8 h-8 rounded-full bg-purple-500 flex-shrink-0 flex items-center justify-center"><Brain size={16} /></div>}
-                <div className={`p-3 rounded-lg max-w-md break-words ${message.role === 'user' ? 'bg-blue-600 ml-auto' : 'bg-slate-700'}`}>
-                  <p className="text-white/90">{message.parts.map(p => p.text).join('')}</p>
-                  <p className="text-xs text-slate-400 mt-2 text-right">{new Date(message.timestamp || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                {message.role === 'model' && (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex-shrink-0 flex items-center justify-center shadow-lg">
+                    <Brain size={16} className="text-white" />
+                  </div>
+                )}
+                <div className={`
+                  p-4 rounded-2xl max-w-md break-words backdrop-blur-sm border shadow-lg
+                  ${message.role === 'user' 
+                    ? 'bg-gradient-to-br from-blue-500/80 to-blue-600/80 border-blue-400/30 text-white ml-auto shadow-blue-500/20' 
+                    : 'bg-white/10 border-white/20 text-white/95 shadow-black/10'
+                  }
+                `}>
+                  <p className="leading-relaxed">{message.parts.map(p => p.text).join('')}</p>
+                  <p className="text-xs opacity-60 mt-3 text-right">
+                    {new Date(message.timestamp || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 </div>
               </div>
             ))}
