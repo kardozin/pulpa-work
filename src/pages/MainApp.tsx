@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { Brain, Mic, MicOff, Volume2, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText, Square } from 'lucide-react';
+import { Brain, Mic, MicOff, Pause, Loader2, MessageCircle, LogOut, User as UserIcon, X, ScrollText, Square } from 'lucide-react';
 import { useProfile } from '../hooks/useProfile';
 import ProfileForm from '../components/Profile';
 import { useAppLogic } from '../hooks/useAppLogic';
@@ -83,9 +83,8 @@ function MainApp() {
   const getButtonState = () => {
     if (!recordingState.hasPermission) return 'permission';
     if (recordingState.isRecording) return 'recording';
+    if (recordingState.isProcessing || recordingState.isAiThinking || recordingState.isGeneratingAudio) return 'processing';
     if (recordingState.isPlayingAudio) return 'playing';
-    if (recordingState.isAiThinking || recordingState.isGeneratingAudio) return 'processing';
-    if (recordingState.isProcessing) return 'processing';
     return 'ready';
   };
 
@@ -99,10 +98,10 @@ function MainApp() {
         return <Mic className="w-12 h-12 text-white" />;
       case 'recording':
         return <Square className="w-12 h-12 text-white" />;
-      case 'playing':
-        return <Volume2 className="w-12 h-12 text-white" />;
       case 'processing':
         return <Loader2 className="w-12 h-12 text-white animate-spin" />;
+      case 'playing':
+        return <Pause className="w-12 h-12 text-white" />;
       default:
         return <Mic className="w-12 h-12 text-white" />;
     }
@@ -118,17 +117,36 @@ function MainApp() {
         return 'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-2xl shadow-indigo-500/50 hover:scale-105';
       case 'recording':
         return 'bg-gradient-to-br from-red-500 to-orange-500 shadow-2xl shadow-red-500/50 hover:scale-105';
+      case 'processing':
+        return 'bg-gradient-to-br from-yellow-500 to-orange-500 shadow-2xl shadow-yellow-500/50';
       case 'playing':
         return 'bg-gradient-to-br from-green-400 to-teal-500 shadow-2xl shadow-green-500/50 hover:scale-105';
-      case 'processing':
-        return 'bg-gradient-to-br from-gray-600 to-gray-700';
       default:
         return 'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-2xl shadow-indigo-500/50 hover:scale-105';
     }
   };
 
+  const getButtonTooltip = () => {
+    const buttonState = getButtonState();
+    
+    switch (buttonState) {
+      case 'permission':
+        return 'Click to enable microphone';
+      case 'ready':
+        return 'Click to start recording';
+      case 'recording':
+        return 'Click to stop recording';
+      case 'processing':
+        return 'Processing your message...';
+      case 'playing':
+        return 'Click to pause and enable microphone';
+      default:
+        return 'Click to interact';
+    }
+  };
+
   const buttonState = getButtonState();
-  const isAiActive = buttonState === 'processing';
+  const isProcessing = buttonState === 'processing';
 
   if (auth.isSessionLoading || profileLoading) {
     return (
@@ -213,10 +231,13 @@ function MainApp() {
         {/* Bloque 2: Área de Acción Central */}
         <div className={`grid place-items-center transition-transform duration-500 ease-in-out ${showConversation ? '-translate-y-20' : 'translate-y-0'}`}>
           <div className="relative flex items-center justify-center w-52 h-52">
-            <div className={`absolute inset-0 rounded-full transition-all duration-500 ease-in-out ${isAiActive ? 'bg-purple-500/30 scale-100' : 'bg-transparent scale-90'}`}></div>
+            {/* Anillo de procesamiento para cuando la IA está pensando */}
+            <div className={`absolute inset-0 rounded-full transition-all duration-500 ease-in-out ${isProcessing ? 'bg-yellow-500/30 scale-100 animate-pulse' : 'bg-transparent scale-90'}`}></div>
+            
             <button 
               onClick={handleMainButtonClick}
               disabled={!recordingState.hasPermission && recordingState.permissionDenied}
+              title={getButtonTooltip()}
               className={`relative w-64 h-64 rounded-full flex items-center justify-center transition-all duration-300 transform-gpu focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${getButtonColor()}`}
             >
               <div className="absolute inset-4 rounded-full bg-white/10 backdrop-blur-sm"></div>

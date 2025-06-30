@@ -153,7 +153,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         ...prev, 
         isPlayingAudio: true, 
         isGeneratingAudio: false,
-        status: 'Playing response... (tap to interrupt)' 
+        status: 'Playing response... (tap to pause)' 
       }));
     } catch (error) {
       console.error('❌ Error trying to play audio:', error);
@@ -181,7 +181,11 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       const transcription = await invokeTranscribe(audioBlob, profile.preferred_language || 'es-AR');
       if (!transcription.trim()) {
         console.log('Transcription is empty, skipping AI chat.');
-        resetToReadyState();
+        setRecordingState(prev => ({ 
+          ...prev, 
+          isProcessing: false, 
+          status: prev.hasPermission ? 'Could not hear anything clearly. Try again.' : 'Microphone access needed'
+        }));
         return;
       }
 
@@ -223,11 +227,16 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         });
       } else {
         console.error("Cannot save user message without a conversation ID.");
-        resetToReadyState();
+        setRecordingState(prev => ({ 
+          ...prev, 
+          isProcessing: false, 
+          error: 'Failed to save message.',
+          status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
+        }));
         return;
       }
 
-      setRecordingState(prev => ({ ...prev, isAiThinking: true, isProcessing: false, status: 'Thinking...' }));
+      setRecordingState(prev => ({ ...prev, isAiThinking: true, isProcessing: false, status: 'AI is thinking...' }));
 
       const aiResponseText = await invokeChatAi({ userMessage: transcription, conversationHistory: conversationHistoryRef.current, languageCode: profile.preferred_language || 'es-AR', profile });
 
@@ -448,6 +457,8 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       isRecording: recordingState.isRecording,
       isPlayingAudio: recordingState.isPlayingAudio,
       isProcessing: recordingState.isProcessing,
+      isAiThinking: recordingState.isAiThinking,
+      isGeneratingAudio: recordingState.isGeneratingAudio,
       hasPermission: recordingState.hasPermission
     });
 
