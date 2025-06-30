@@ -295,7 +295,7 @@ function MainApp() {
             )}
           </div>
           {currentConversationId && (
-            <div className="h-16 mt-8 flex flex-col items-center">
+            <div className="h-16 mt-24 flex flex-col items-center">
               <button
                 onClick={handleFinishSession}
                 disabled={isSummarizing}
