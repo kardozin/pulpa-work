@@ -238,7 +238,17 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
 
       setRecordingState(prev => ({ ...prev, isAiThinking: true, isProcessing: false, status: 'AI is thinking...' }));
 
-      const aiResponseText = await invokeChatAi({ userMessage: transcription, conversationHistory: conversationHistoryRef.current, languageCode: profile.preferred_language || 'es-AR', profile });
+      // Enhanced AI call with better user context
+      const aiResponseText = await invokeChatAi({ 
+        userMessage: transcription, 
+        conversationHistory: conversationHistoryRef.current, 
+        languageCode: profile.preferred_language || 'es-AR', 
+        profile: {
+          fullName: profile.full_name || 'Usuario',
+          role: profile.role || 'Persona reflexiva',
+          goals: profile.goals || 'Crecimiento personal y autoconocimiento'
+        }
+      });
 
       const aiMessage: ConversationMessage = { 
         id: generateUniqueId(), 
@@ -532,8 +542,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       try {
         // 2. Invoke chat AI with only the meta context for a clean analysis request
         const aiResponseText = await invokeChatAi({
-          languageCode: 'es-AR',
-          profile,
+          languageCode: profile.preferred_language || 'es-AR',
+          profile: {
+            fullName: profile.full_name || 'Usuario',
+            role: profile.role || 'Persona reflexiva',
+            goals: profile.goals || 'Crecimiento personal y autoconocimiento'
+          },
           metaContext: {
             userQuery: metaReflectionRequest.userQuery,
             relevantMemories: metaReflectionRequest.relevantMemories.map(mem => ({ content: mem.content })),
