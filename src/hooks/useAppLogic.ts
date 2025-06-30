@@ -144,13 +144,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     audio.onerror = () => {
       console.error('❌ Error playing audio.');
       cleanupAudio();
-      setRecordingState(prev => ({ 
-        ...prev, 
-        isPlayingAudio: false, 
-        isGeneratingAudio: false,
-        error: 'Failed to play audio response.',
-        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
-      }));
+      resetToReadyState();
     };
 
     try {
@@ -159,7 +153,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         ...prev, 
         isPlayingAudio: true, 
         isGeneratingAudio: false,
-        status: 'Playing response...' 
+        status: 'Playing response... (tap to interrupt)' 
       }));
     } catch (error) {
       console.error('❌ Error trying to play audio:', error);
@@ -458,8 +452,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     });
 
     if (recordingState.isPlayingAudio) {
-      console.log('🛑 Interrupting audio playback');
+      console.log('🛑 Interrupting audio playback and enabling microphone');
       handleInterruptAudio();
+      // After interrupting, immediately start recording if we have permission
+      if (recordingState.hasPermission) {
+        setTimeout(() => startRecording(), 100); // Small delay to ensure state is clean
+      }
       return;
     }
 
