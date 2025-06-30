@@ -227,7 +227,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         }
       }
 
-      const userMessage: ConversationMessage = { id: generateUniqueId(), role: 'user', parts: [{ text: transcription }] };
+      const userMessage: ConversationMessage = { 
+        id: generateUniqueId(), 
+        role: 'user', 
+        parts: [{ text: transcription }],
+        timestamp: new Date().toISOString()
+      };
       setConversationHistory(prev => [...prev, userMessage]);
 
       if (convId) {
@@ -251,7 +256,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
 
       const aiResponseText = await invokeChatAi({ userMessage: transcription, conversationHistory: conversationHistoryRef.current, languageCode: profile.preferred_language || 'es-AR', profile });
 
-      const aiMessage: ConversationMessage = { id: generateUniqueId(), role: 'model', parts: [{ text: aiResponseText }] };
+      const aiMessage: ConversationMessage = { 
+        id: generateUniqueId(), 
+        role: 'model', 
+        parts: [{ text: aiResponseText }],
+        timestamp: new Date().toISOString()
+      };
       setConversationHistory(prev => [...prev, aiMessage]);
 
       if (currentConversationIdRef.current) {

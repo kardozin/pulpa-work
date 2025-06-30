@@ -239,7 +239,7 @@ function MainApp() {
             )}
           </div>
           {currentConversationId && (
-            <div className="h-10 mt-8">
+            <div className="h-16 mt-8 flex flex-col items-center">
               <button
                 onClick={handleFinishSession}
                 disabled={isSummarizing}
@@ -251,6 +251,9 @@ function MainApp() {
                   'Finish Session'
                 )}
               </button>
+              <p className="text-xs text-white/40 mt-2 text-center">
+                Saves conversation and generates summary
+              </p>
             </div>
           )}
         </div>
@@ -323,7 +326,7 @@ function MainApp() {
                 `}>
                   <p className="leading-relaxed">{message.parts.map(p => p.text).join('')}</p>
                   <p className="text-xs opacity-60 mt-3 text-right">
-                    {new Date(message.timestamp || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {message.timestamp ? new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>
