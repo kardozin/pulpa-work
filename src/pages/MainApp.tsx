@@ -93,11 +93,11 @@ function MainApp() {
 
     if (!recordingState.hasPermission) return 'permission';
     if (recordingState.error) return 'error';
-    if (recordingState.isRecording) return 'recording';
     if (recordingState.isProcessing) return 'transcribing';
     if (recordingState.isAiThinking) return 'thinking';
     if (recordingState.isGeneratingAudio) return 'generating';
     if (recordingState.isPlayingAudio) return 'playing';
+    if (recordingState.isRecording) return 'recording';
     return 'ready';
   };
 
