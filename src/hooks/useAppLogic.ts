@@ -127,6 +127,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       setRecordingState(prev => ({ 
         ...prev, 
         error: 'Received empty audio from server.',
+        isGeneratingAudio: false,
       }));
       // Auto-reset after showing error briefly
       setTimeout(() => resetToReadyState(), 2000);
@@ -152,6 +153,8 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       setRecordingState(prev => ({ 
         ...prev, 
         error: 'Failed to play audio response.',
+        isGeneratingAudio: false,
+        isPlayingAudio: false,
       }));
       // Auto-reset after showing error briefly
       setTimeout(() => resetToReadyState(), 2000);
@@ -171,6 +174,8 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       setRecordingState(prev => ({ 
         ...prev, 
         error: 'Could not play audio.',
+        isGeneratingAudio: false,
+        isPlayingAudio: false,
       }));
       // Auto-reset after showing error briefly
       setTimeout(() => resetToReadyState(), 2000);
@@ -183,13 +188,21 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       setRecordingState(prev => ({ 
         ...prev, 
         error: 'Profile not loaded.',
+        isProcessing: false,
       }));
       // Auto-reset after showing error briefly
       setTimeout(() => resetToReadyState(), 2000);
       return;
     }
 
-    setRecordingState(prev => ({ ...prev, isProcessing: true, status: 'Transcribing your thoughts...' }));
+    // Step 1: Start transcription
+    setRecordingState(prev => ({ 
+      ...prev, 
+      isProcessing: true, 
+      isAiThinking: false,
+      isGeneratingAudio: false,
+      status: 'Transcribing your thoughts...' 
+    }));
 
     try {
       // Step 1: Transcribe Audio
@@ -255,7 +268,13 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         return;
       }
 
-      setRecordingState(prev => ({ ...prev, isAiThinking: true, isProcessing: false, status: 'AI is thinking...' }));
+      // Step 2: AI thinking
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isAiThinking: true, 
+        isProcessing: false, 
+        status: 'AI is thinking...' 
+      }));
 
       // Enhanced AI call with better user context
       const aiResponseText = await invokeChatAi({ 
@@ -283,13 +302,20 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         console.error("Cannot save AI message without a conversation ID.");
       }
 
-      setRecordingState(prev => ({ ...prev, isAiThinking: false, isGeneratingAudio: true, status: 'Generating audio...' }));
+      // Step 3: Generate audio
+      setRecordingState(prev => ({ 
+        ...prev, 
+        isAiThinking: false, 
+        isGeneratingAudio: true, 
+        status: 'Generating audio...' 
+      }));
 
       if (!profile) {
         console.error("Cannot play audio without user profile.");
         setRecordingState(prev => ({ 
           ...prev, 
           error: 'Error: Profile not found.',
+          isGeneratingAudio: false,
         }));
         // Auto-reset after showing error briefly
         setTimeout(() => resetToReadyState(), 2000);
