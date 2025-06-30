@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+    <section className="h-screen flex flex-col items-center justify-center px-4 text-center">
       <div className="max-w-4xl mx-auto">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
@@ -37,6 +37,14 @@ const HeroSection: React.FC = () => {
         <p className="text-text-secondary/70 mt-8 text-lg">
           Voice-guided • AI-powered • Deeply personal
         </p>
+
+        {/* SCROLL INDICATOR */}
+        <div className="mt-16 animate-bounce">
+          <p className="text-white/60 text-sm mb-2">Scroll down to see more</p>
+          <div className="w-6 h-10 border-2 border-white/30 rounded-full mx-auto flex justify-center">
+            <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse"></div>
+          </div>
+        </div>
       </div>
     </section>
   );
