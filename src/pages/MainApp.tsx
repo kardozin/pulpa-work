@@ -112,7 +112,7 @@ function MainApp() {
             <Brain className="w-10 h-10 text-primary mx-auto mb-2" />
             <h1 className="text-3xl font-light text-text-main tracking-wide">pulpa.work</h1>
           </div>
-          <div className="bg-slate-800/60 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8">
+          <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-black/20 p-8">
             <Auth
               supabaseClient={supabase}
               appearance={{

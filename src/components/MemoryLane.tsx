@@ -114,18 +114,18 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
     return (
       <div 
         key={result.id} 
-        className="bg-white bg-opacity-5 p-4 rounded-lg border border-white border-opacity-10 flex flex-col gap-2 cursor-pointer hover:bg-white/10 transition-colors"
+        className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer shadow-lg"
         onClick={handleResultClick}
       >
-      <div className="flex justify-between items-center text-xs text-slate-400">
+      <div className="flex justify-between items-center text-xs text-white/60 mb-2">
         <span className={`font-semibold ${result.role === 'user' ? 'text-blue-400' : 'text-purple-400'}`}>
           {result.role === 'user' ? 'You' : 'Pulpa'}
         </span>
         <span>{new Date(result.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
       </div>
-      <p className="text-slate-200 text-base mt-2">{result.content}</p>
+      <p className="text-white/90 text-base leading-relaxed">{result.content}</p>
       {result.relevance != null && (
-        <p className="text-sm text-purple-400 self-end">
+        <p className="text-sm text-purple-400 self-end mt-2">
           Relevance: {(result.relevance * 100).toFixed(0)}%
         </p>
       )}
@@ -138,15 +138,27 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
     if (selectedConversation) {
       return (
         <div>
-          <button onClick={() => setSelectedConversation(null)} className="mb-4 flex items-center text-slate-300 hover:text-white">
+          <button 
+            onClick={() => setSelectedConversation(null)} 
+            className="mb-6 flex items-center text-white/70 hover:text-white transition-colors"
+          >
             <ArrowLeft size={18} className="mr-2" />
             Back to list
           </button>
           <div className="space-y-4">
             {selectedConversation.messages.map((msg) => (
-              <div key={msg.id} className={`p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-900/50' : 'bg-slate-700/50'}`}>
-                <p>{msg.text}</p>
-                <span className="text-xs text-gray-400 mt-1 block">{new Date(msg.created_at).toLocaleTimeString()}</span>
+              <div 
+                key={msg.id} 
+                className={`p-4 rounded-xl backdrop-blur-sm border ${
+                  msg.role === 'user' 
+                    ? 'bg-blue-500/20 border-blue-400/30' 
+                    : 'bg-white/10 border-white/20'
+                }`}
+              >
+                <p className="text-white/95 leading-relaxed">{msg.text}</p>
+                <span className="text-xs text-white/50 mt-2 block">
+                  {new Date(msg.created_at).toLocaleTimeString()}
+                </span>
               </div>
             ))}
           </div>
@@ -157,9 +169,9 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
     // 2. Analysis view: loading
     if (isAnalyzing) {
       return (
-        <div className="flex flex-col items-center justify-center h-full">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
-          <p className="mt-4 text-gray-400">Analyzing reflections...</p>
+        <div className="flex flex-col items-center justify-center h-full py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-400 mb-4" />
+          <p className="text-white/70">Analyzing reflections...</p>
         </div>
       );
     }
@@ -169,10 +181,10 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
       return (
         <div className="flex flex-col gap-4 text-center">
           <h3 className="text-lg font-semibold text-red-400">Analysis Error</h3>
-          <p className="text-gray-300 bg-red-900/50 p-4 rounded-lg">{analysisError}</p>
+          <p className="text-white/80 bg-red-500/20 border border-red-400/30 p-4 rounded-xl">{analysisError}</p>
           <button
             onClick={clearAnalysis}
-            className="mt-2 self-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+            className="mt-2 self-center bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium py-2 px-6 rounded-full transition-all duration-200"
           >
             Try Again
           </button>
@@ -183,14 +195,14 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
     // 4. Analysis view: success
     if (analysisResult) {
       return (
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold text-white">Analysis Result</h3>
-          <div className="prose prose-invert max-w-none text-gray-300 whitespace-pre-wrap bg-white/5 p-4 rounded-lg">
-            <p>{analysisResult}</p>
+        <div className="flex flex-col gap-6">
+          <h3 className="text-lg font-semibold text-white/95">Analysis Result</h3>
+          <div className="prose prose-invert max-w-none text-white/90 whitespace-pre-wrap bg-white/5 border border-white/10 p-6 rounded-xl backdrop-blur-sm">
+            <p className="leading-relaxed">{analysisResult}</p>
           </div>
           <button
             onClick={clearAnalysis}
-            className="mt-4 w-full max-w-xs mx-auto flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="mt-4 w-full max-w-xs mx-auto flex justify-center py-3 px-6 border border-white/20 rounded-full shadow-sm text-sm font-medium text-white bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-sm"
           >
             Back to Search
           </button>
@@ -201,7 +213,7 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
     // 5. Default view: search interfaces
     return (
       <div>
-        <div className="mb-4 relative flex items-center">
+        <div className="mb-6 relative flex items-center">
           <input
             type="search"
             placeholder="Search for relevant reflections..."
@@ -212,11 +224,11 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
                 handleSearchClick();
               }
             }}
-            className="form-input pl-4 pr-12 py-3"
+            className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-full text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm"
           />
           <button
             onClick={handleSearchClick}
-            className="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full text-gray-400 rounded-r-lg hover:text-white hover:bg-indigo-600/50 transition-colors"
+            className="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full text-white/60 rounded-r-full hover:text-white hover:bg-primary/50 transition-colors"
             aria-label="Search"
           >
             <Search size={20} />
@@ -224,55 +236,59 @@ const MemoryLane: React.FC<MemoryLaneProps> = ({ onClose }) => {
         </div>
 
         {isSearching && (
-          <div className="flex justify-center items-center py-10">
+          <div className="flex justify-center items-center py-12">
             <Loader2 className="animate-spin text-purple-400" size={32} />
           </div>
         )}
 
         {!isSearching && semanticSearchResults.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-4 mb-8">
             {semanticSearchResults.map(renderMemoryItem)}
             <button
               onClick={handleAnalyzeResults}
               disabled={semanticSearchResults.length === 0}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400 disabled:cursor-wait"
+              className="w-full flex justify-center py-3 px-6 border border-green-400/30 rounded-full shadow-sm text-sm font-medium text-white bg-green-500/20 hover:bg-green-500/30 transition-all duration-200 disabled:bg-green-400/10 disabled:cursor-wait backdrop-blur-sm"
             >
               Analyze these reflections
             </button>
           </div>
         )}
 
-        <hr className="border-slate-600 my-6" />
+        <hr className="border-white/20 my-8" />
 
         <div>
-          <div className="mb-4">
+          <div className="mb-6">
             <input
               type="search"
               placeholder="Or search by keyword in all conversations..."
               value={keywordSearchTerm}
               onChange={(e) => setKeywordSearchTerm(e.target.value)}
-              className="form-input"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm"
             />
           </div>
           <div>
             {isLoadingConversations ? (
-              <div className="flex justify-center items-center py-10">
+              <div className="flex justify-center items-center py-12">
                 <Loader2 className="animate-spin text-purple-400" size={48} />
               </div>
             ) : conversations.length === 0 && keywordSearchTerm ? (
-              <p className="text-center text-gray-400 py-10">No reflections found for \"{keywordSearchTerm}\".</p>
+              <p className="text-center text-white/60 py-12">No reflections found for "{keywordSearchTerm}".</p>
             ) : conversations.length === 0 ? (
-              <p className="text-center text-gray-400 py-10">Your saved reflections will appear here.</p>
+              <p className="text-center text-white/60 py-12">Your saved reflections will appear here.</p>
             ) : (
               <div className="space-y-4">
                 {conversations.map((convo) => (
                   <div
                     key={convo.id}
                     onClick={() => setSelectedConversation(convo)}
-                    className="bg-white/5 p-4 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
+                    className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl cursor-pointer hover:bg-white/10 transition-all duration-200 shadow-lg"
                   >
-                    <p className="text-sm text-gray-300">Reflection from {new Date(convo.created_at).toLocaleString()}</p>
-                    {convo.summary && <p className="text-xs text-gray-500 mt-1">{convo.summary}</p>}
+                    <p className="text-sm text-white/80 mb-2">
+                      Reflection from {new Date(convo.created_at).toLocaleString()}
+                    </p>
+                    {convo.summary && (
+                      <p className="text-xs text-white/60 leading-relaxed">{convo.summary}</p>
+                    )}
                   </div>
                 ))}
               </div>

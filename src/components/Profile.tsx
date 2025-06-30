@@ -97,58 +97,58 @@ const ProfileForm: React.FC<ProfileProps> = ({ profile, onSave, loading }) => {
   return (
       <form onSubmit={handleSave} className="space-y-6">
         <div>
-          <label htmlFor="full_name" className="block text-sm font-medium text-gray-400">Full Name</label>
+          <label htmlFor="full_name" className="block text-sm font-medium text-white/70 mb-2">Full Name</label>
           <input
             id="full_name"
             name="full_name"
             type="text"
             value={formData.full_name || ''}
             onChange={handleChange}
-            className="form-input"
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm"
             placeholder="Your full name"
           />
         </div>
         <div>
-          <label htmlFor="role" className="block text-sm font-medium text-gray-400">Role / Profession</label>
+          <label htmlFor="role" className="block text-sm font-medium text-white/70 mb-2">Role / Profession</label>
           <input
             id="role"
             name="role"
             type="text"
             value={formData.role || ''}
             onChange={handleChange}
-            className="form-input"
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm"
             placeholder="e.g., Software Developer"
           />
         </div>
         <div>
-          <label htmlFor="timezone" className="block text-sm font-medium text-gray-400">Timezone</label>
+          <label htmlFor="timezone" className="block text-sm font-medium text-white/70 mb-2">Timezone</label>
           <input
             id="timezone"
             name="timezone"
             type="text"
             value={formData.timezone || ''}
             onChange={handleChange}
-            className="form-input"
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm"
             placeholder="e.g., America/New_York"
           />
         </div>
         <div>
-          <label htmlFor="goals" className="block text-sm font-medium text-gray-400">My Goals</label>
+          <label htmlFor="goals" className="block text-sm font-medium text-white/70 mb-2">My Goals</label>
           <textarea
             id="goals"
             name="goals"
             value={formData.goals || ''}
             onChange={handleChange}
             rows={3}
-            className="form-input"
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm resize-none"
             placeholder="What are your goals for using this app?"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-400">Language</label>
-            <div className="flex items-center gap-4 mt-2">
+            <label className="block text-sm font-medium text-white/70 mb-3">Language</label>
+            <div className="flex items-center gap-3">
               {languageOptions.map((option) => {
                 const isSelected = formData.preferred_language === option.value;
                 return (
@@ -156,7 +156,12 @@ const ProfileForm: React.FC<ProfileProps> = ({ profile, onSave, loading }) => {
                     key={option.value}
                     type="button"
                     onClick={() => handleLanguageSelect(option.value as 'en-US' | 'es-AR')}
-                    className={`px-4 py-2 rounded-full border-2 transition-all duration-200 w-full ${isSelected ? 'bg-primary/20 border-primary text-white' : 'bg-slate-700/50 border-slate-600 text-gray-300 hover:border-slate-400'}`}>
+                    className={`px-4 py-2 rounded-full border-2 transition-all duration-200 w-full backdrop-blur-sm ${
+                      isSelected 
+                        ? 'bg-primary/20 border-primary text-white' 
+                        : 'bg-white/10 border-white/20 text-white/80 hover:border-white/40'
+                    }`}
+                  >
                     {option.label}
                   </button>
                 );
@@ -165,8 +170,8 @@ const ProfileForm: React.FC<ProfileProps> = ({ profile, onSave, loading }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-400">Voice</label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
+            <label className="block text-sm font-medium text-white/70 mb-3">Voice</label>
+            <div className="grid grid-cols-2 gap-2">
               {(formData.preferred_language ? availableVoices[formData.preferred_language as keyof typeof availableVoices] : []).map((voice) => {
                 const isSelected = formData.preferred_voice_id === voice.id;
                 return (
@@ -174,8 +179,13 @@ const ProfileForm: React.FC<ProfileProps> = ({ profile, onSave, loading }) => {
                     key={voice.id}
                     type="button"
                     onClick={() => handleVoiceSelect(voice.id)}
-                    className={`px-4 py-2 rounded-full border-2 w-full flex justify-between items-center transition-all duration-200 text-left ${isSelected ? 'bg-primary/20 border-primary text-white' : 'bg-slate-700/50 border-slate-600 text-gray-300 hover:border-slate-400'}`}>
-                    <span>{voice.name}</span>
+                    className={`px-3 py-2 rounded-full border-2 w-full flex justify-between items-center transition-all duration-200 text-left backdrop-blur-sm ${
+                      isSelected 
+                        ? 'bg-primary/20 border-primary text-white' 
+                        : 'bg-white/10 border-white/20 text-white/80 hover:border-white/40'
+                    }`}
+                  >
+                    <span className="text-sm">{voice.name}</span>
                     <div
                       role="button"
                       aria-label={`Play sample for ${voice.name}`}
@@ -183,8 +193,9 @@ const ProfileForm: React.FC<ProfileProps> = ({ profile, onSave, loading }) => {
                         e.stopPropagation();
                         handlePreview(voice.sampleUrl);
                       }}
-                      className="p-1 rounded-full hover:bg-slate-600/80">
-                      <Play className="w-5 h-5" />
+                      className="p-1 rounded-full hover:bg-white/20 transition-colors"
+                    >
+                      <Play className="w-4 h-4" />
                     </div>
                   </button>
                 );
@@ -195,7 +206,7 @@ const ProfileForm: React.FC<ProfileProps> = ({ profile, onSave, loading }) => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-wait"
+          className="w-full flex justify-center py-3 px-6 border border-white/20 rounded-full shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-focus transition-all duration-200 disabled:bg-primary/50 disabled:cursor-wait backdrop-blur-sm"
         >
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
