@@ -94,13 +94,32 @@ const FinalCTASection: React.FC = () => {
   );
 };
 
+// TEST SECTION - This should be visible if the page is updating
+const TestSection: React.FC = () => {
+  return (
+    <section className="py-12 px-4 bg-red-500/20">
+      <div className="max-w-4xl mx-auto text-center">
+        <h2 className="text-3xl font-bold text-white mb-4">
+          🔥 TEST SECTION - If you see this, the page is updating! 🔥
+        </h2>
+        <p className="text-white/80">
+          This is a test section to verify the page is actually updating. Current time: {new Date().toLocaleTimeString()}
+        </p>
+      </div>
+    </section>
+  );
+};
+
 const LandingPage: React.FC = () => {
+  console.log('🚀 LandingPage component is rendering at:', new Date().toLocaleTimeString());
+  
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden">
       <AnimatedBackground />
       
       <div className="relative z-10">
         <HeroSection />
+        <TestSection />
         <FeaturesSection />
         <HowItWorksSection />
         <TechStackSection />
