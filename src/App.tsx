@@ -15,7 +15,7 @@ import MemoryLane from './components/MemoryLane';
 import ModalPanel from './components/ui/ModalPanel';
 import { MAX_TURN_DURATION } from './config/audio';
 
-// Built with Bolt Badge Component
+// Official Built with Bolt Badge Component (Hackathon Requirements)
 const BoltBadge = () => (
   <div className="fixed bottom-4 right-4 z-50">
     <a 
@@ -24,14 +24,19 @@ const BoltBadge = () => (
       rel="noopener noreferrer"
       className="block transition-transform hover:scale-105"
     >
-      <div className="bg-black text-white px-3 py-1.5 rounded-lg shadow-lg border border-gray-700 hover:border-gray-500 transition-colors">
-        <div className="flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/>
-          </svg>
-          <span className="text-xs font-medium">Built with Bolt</span>
-        </div>
-      </div>
+      <img 
+        src="/logotext_poweredby_360w.png" 
+        alt="Built with Bolt" 
+        className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity"
+        onError={(e) => {
+          // Fallback if image fails to load
+          e.currentTarget.style.display = 'none';
+          const fallback = document.createElement('div');
+          fallback.className = 'bg-black text-white px-3 py-1.5 rounded-lg shadow-lg border border-gray-700 text-xs font-medium';
+          fallback.innerHTML = '⚡ Built with Bolt';
+          e.currentTarget.parentNode?.appendChild(fallback);
+        }}
+      />
     </a>
   </div>
 );
