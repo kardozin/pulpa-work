@@ -109,7 +109,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       isPlayingAudio: false,
       audioLevel: 0,
       recordingDuration: 0,
-      error: '',
+      error: '', // Clear any existing errors
       status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed',
     }));
   }, []);
@@ -124,7 +124,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     console.log('🔊 Attempting to play audio blob:', audioBlob);
     if (audioBlob.size === 0) {
       console.error('Received an empty audio blob. Skipping playback.');
-      resetToReadyState();
+      setRecordingState(prev => ({ 
+        ...prev, 
+        error: 'Received empty audio from server.',
+      }));
+      // Auto-reset after showing error briefly
+      setTimeout(() => resetToReadyState(), 2000);
       return;
     }
 
@@ -144,7 +149,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     audio.onerror = () => {
       console.error('❌ Error playing audio.');
       cleanupAudio();
-      resetToReadyState();
+      setRecordingState(prev => ({ 
+        ...prev, 
+        error: 'Failed to play audio response.',
+      }));
+      // Auto-reset after showing error briefly
+      setTimeout(() => resetToReadyState(), 2000);
     };
 
     try {
@@ -158,7 +168,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     } catch (error) {
       console.error('❌ Error trying to play audio:', error);
       cleanupAudio();
-      resetToReadyState();
+      setRecordingState(prev => ({ 
+        ...prev, 
+        error: 'Could not play audio.',
+      }));
+      // Auto-reset after showing error briefly
+      setTimeout(() => resetToReadyState(), 2000);
     }
   }, [cleanupAudio, resetToReadyState]);
 
@@ -168,9 +183,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       setRecordingState(prev => ({ 
         ...prev, 
         error: 'Profile not loaded.',
-        isProcessing: false,
-        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
       }));
+      // Auto-reset after showing error briefly
+      setTimeout(() => resetToReadyState(), 2000);
       return;
     }
 
@@ -184,8 +199,10 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         setRecordingState(prev => ({ 
           ...prev, 
           isProcessing: false, 
-          status: prev.hasPermission ? 'Could not hear anything clearly. Try again.' : 'Microphone access needed'
+          status: 'Could not hear anything clearly. Try again.',
         }));
+        // Auto-reset after showing message briefly
+        setTimeout(() => resetToReadyState(), 2000);
         return;
       }
 
@@ -205,8 +222,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
             ...prev, 
             isProcessing: false, 
             error: 'Could not start a new conversation.',
-            status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
           }));
+          // Auto-reset after showing error briefly
+          setTimeout(() => resetToReadyState(), 2000);
           return;
         }
       }
@@ -231,8 +249,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
           ...prev, 
           isProcessing: false, 
           error: 'Failed to save message.',
-          status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
         }));
+        // Auto-reset after showing error briefly
+        setTimeout(() => resetToReadyState(), 2000);
         return;
       }
 
@@ -268,7 +287,12 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
 
       if (!profile) {
         console.error("Cannot play audio without user profile.");
-        resetToReadyState();
+        setRecordingState(prev => ({ 
+          ...prev, 
+          error: 'Error: Profile not found.',
+        }));
+        // Auto-reset after showing error briefly
+        setTimeout(() => resetToReadyState(), 2000);
         return;
       }
       const languageCode = profile.preferred_language || 'es-AR';
@@ -286,8 +310,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         isAiThinking: false, 
         isGeneratingAudio: false, 
         error: `Error: ${errorMessage}`,
-        status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
       }));
+      // Auto-reset after showing error briefly
+      setTimeout(() => resetToReadyState(), 3000);
     }
   }, [profile, playAudio, resetToReadyState]);
 
@@ -413,8 +438,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         setRecordingState(prev => ({ 
           ...prev, 
           error: `Recording failed: ${error.message}`,
-          status: prev.hasPermission ? 'Ready for your next thought' : 'Microphone access needed'
         }));
+        // Auto-reset after showing error briefly
+        setTimeout(() => resetToReadyState(), 2000);
       };
 
       mediaRecorder.onstart = () => {
@@ -460,7 +486,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         status: 'Microphone access denied.' 
       }));
     }
-  }, [recordingState.isRecording, recordingState.isProcessing, handleInterruptAudio, monitorAudioLevel, stopStreamingRecording]);
+  }, [recordingState.isRecording, recordingState.isProcessing, handleInterruptAudio, monitorAudioLevel, stopStreamingRecording, resetToReadyState]);
 
   const handleMainButtonClick = useCallback(() => {
     console.log('🔘 Main button clicked. Current state:', {
@@ -469,8 +495,16 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       isProcessing: recordingState.isProcessing,
       isAiThinking: recordingState.isAiThinking,
       isGeneratingAudio: recordingState.isGeneratingAudio,
-      hasPermission: recordingState.hasPermission
+      hasPermission: recordingState.hasPermission,
+      error: recordingState.error
     });
+
+    // If there's an error, clear it and reset to ready state
+    if (recordingState.error) {
+      console.log('🔄 Clearing error and resetting to ready state');
+      resetToReadyState();
+      return;
+    }
 
     if (recordingState.isPlayingAudio) {
       console.log('🛑 Interrupting audio playback and enabling microphone');
@@ -494,7 +528,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     } else {
       console.log('⏳ Cannot start recording - system is busy');
     }
-  }, [recordingState, stopStreamingRecording, startRecording, handleInterruptAudio]);
+  }, [recordingState, stopStreamingRecording, startRecording, handleInterruptAudio, resetToReadyState]);
 
   // --- LIFECYCLE HOOKS ---
   useEffect(() => {

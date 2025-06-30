@@ -82,6 +82,7 @@ function MainApp() {
 
   const getButtonState = () => {
     if (!recordingState.hasPermission) return 'permission';
+    if (recordingState.error) return 'error'; // New error state
     if (recordingState.isRecording) return 'recording';
     if (recordingState.isProcessing || recordingState.isAiThinking || recordingState.isGeneratingAudio) return 'processing';
     if (recordingState.isPlayingAudio) return 'playing';
@@ -94,6 +95,8 @@ function MainApp() {
     switch (buttonState) {
       case 'permission':
         return <MicOff className="w-12 h-12 text-white" />;
+      case 'error':
+        return <Mic className="w-12 h-12 text-white" />; // Show mic icon for errors to indicate it's clickable
       case 'ready':
         return <Mic className="w-12 h-12 text-white" />;
       case 'recording':
@@ -113,12 +116,14 @@ function MainApp() {
     switch (buttonState) {
       case 'permission':
         return 'bg-gray-600';
+      case 'error':
+        return 'bg-gradient-to-br from-red-500 to-red-600 shadow-2xl shadow-red-500/50 hover:scale-105'; // Red for errors
       case 'ready':
         return 'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-2xl shadow-indigo-500/50 hover:scale-105';
       case 'recording':
         return 'bg-gradient-to-br from-red-500 to-orange-500 shadow-2xl shadow-red-500/50 hover:scale-105';
       case 'processing':
-        return 'bg-gradient-to-br from-yellow-500 to-orange-500 shadow-2xl shadow-yellow-500/50';
+        return 'bg-gradient-to-br from-yellow-500 to-orange-500 shadow-2xl shadow-yellow-500/50'; // Yellow for processing
       case 'playing':
         return 'bg-gradient-to-br from-green-400 to-teal-500 shadow-2xl shadow-green-500/50 hover:scale-105';
       default:
@@ -132,6 +137,8 @@ function MainApp() {
     switch (buttonState) {
       case 'permission':
         return 'Click to enable microphone';
+      case 'error':
+        return 'Click to retry';
       case 'ready':
         return 'Click to start recording';
       case 'recording':
@@ -236,7 +243,7 @@ function MainApp() {
             
             <button 
               onClick={handleMainButtonClick}
-              disabled={!recordingState.hasPermission && recordingState.permissionDenied}
+              disabled={!recordingState.hasPermission && recordingState.permissionDenied && !recordingState.error}
               title={getButtonTooltip()}
               className={`relative w-64 h-64 rounded-full flex items-center justify-center transition-all duration-300 transform-gpu focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${getButtonColor()}`}
             >
