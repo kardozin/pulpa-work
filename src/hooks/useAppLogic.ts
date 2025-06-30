@@ -255,7 +255,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       audioContextRef.current = null;
     }
 
-    setRecordingState(prev => ({ ...prev, isRecording: false, audioLevel: 0 }));
+    setRecordingState(prev => ({ ...prev, isRecording: false, audioLevel: 0, recordingDuration: 0 }));
     hasDetectedSpeechRef.current = false;
   }, [processAudio]);
 
@@ -268,9 +268,10 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
       if (!analyserRef.current) return;
       analyserRef.current.getByteFrequencyData(dataArray);
       const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
-      setRecordingState(prev => ({ ...prev, audioLevel: average }));
+      const normalizedLevel = average / 255; // Normalize to 0-1
+      setRecordingState(prev => ({ ...prev, audioLevel: normalizedLevel }));
 
-      if (average > SILENCE_THRESHOLD) {
+      if (normalizedLevel > SILENCE_THRESHOLD) {
         hasDetectedSpeechRef.current = true;
         if (silenceDetectionTimerRef.current) {
           clearTimeout(silenceDetectionTimerRef.current);
@@ -299,23 +300,45 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     allAudioChunksRef.current = [];
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: AUDIO_CONFIG.sampleRate
+        } 
+      });
       streamRef.current = stream;
-      setRecordingState(prev => ({ ...prev, hasPermission: true, permissionDenied: false, error: '' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        hasPermission: true, 
+        permissionDenied: false, 
+        error: '',
+        status: 'Microphone ready'
+      }));
 
       // Setup audio context for analysis
-      const context = new AudioContext();
+      const context = new AudioContext({ sampleRate: AUDIO_CONFIG.sampleRate });
       audioContextRef.current = context;
       const source = context.createMediaStreamSource(stream);
       const analyser = context.createAnalyser();
       analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.8;
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: AUDIO_CONFIG.mimeType });
+      const mediaRecorder = new MediaRecorder(stream, { 
+        mimeType: AUDIO_CONFIG.mimeType,
+        audioBitsPerSecond: 128000
+      });
       mediaRecorderRef.current = mediaRecorder;
 
-      mediaRecorder.ondataavailable = (event: BlobEvent) => allAudioChunksRef.current.push(event.data);
+      mediaRecorder.ondataavailable = (event: BlobEvent) => {
+        if (event.data.size > 0) {
+          allAudioChunksRef.current.push(event.data);
+        }
+      };
+      
       mediaRecorder.onerror = (event: Event) => {
         const error = (event as any).error || new Error('Unknown MediaRecorder error');
         console.error('MediaRecorder error:', error);
@@ -324,32 +347,46 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
 
       mediaRecorder.onstart = () => {
         console.log('🎙️ Recording started.');
+        recordingStartTimeRef.current = Date.now();
         setRecordingState(prev => ({
           ...prev,
           isRecording: true,
           status: 'Listening...',
           recordingDuration: 0,
+          error: ''
         }));
-        recordingStartTimeRef.current = Date.now();
 
+        // Clear any existing timer
         if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        
+        // Start the recording timer
         recordingTimerRef.current = setInterval(() => {
-          const duration = (Date.now() - recordingStartTimeRef.current) / 1000;
-          setRecordingState(prev => ({ ...prev, recordingDuration: duration }));
-          if (duration >= MAX_TURN_DURATION) {
+          const elapsed = Date.now() - recordingStartTimeRef.current;
+          setRecordingState(prev => ({ ...prev, recordingDuration: elapsed }));
+          
+          // Auto-stop at max duration
+          if (elapsed >= MAX_TURN_DURATION) {
+            console.log('Max recording duration reached, stopping...');
             stopStreamingRecording(true);
           }
-        }, 100);
+        }, 100); // Update every 100ms for smooth timer
 
         monitorAudioLevel();
       };
 
+      // Start recording with time slices for better data handling
       mediaRecorder.start(1000);
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.error('Error starting recording:', errorMessage);
-      setRecordingState(prev => ({ ...prev, hasPermission: false, permissionDenied: true, error: 'Microphone permission denied.', status: 'Microphone access denied.' }));
+      setRecordingState(prev => ({ 
+        ...prev, 
+        hasPermission: false, 
+        permissionDenied: true, 
+        error: 'Microphone permission denied.', 
+        status: 'Microphone access denied.' 
+      }));
     }
   }, [recordingState.isRecording, recordingState.isProcessing, handleInterruptAudio, monitorAudioLevel, stopStreamingRecording]);
 
@@ -372,12 +409,22 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     const requestPermission = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        setRecordingState(prev => ({ ...prev, hasPermission: true, permissionDenied: false }));
+        setRecordingState(prev => ({ 
+          ...prev, 
+          hasPermission: true, 
+          permissionDenied: false,
+          status: 'Tap the pulse to begin your reflection'
+        }));
         // Stop the tracks immediately, we only wanted the permission grant
         stream.getTracks().forEach(track => track.stop());
       } catch (err) {
         console.error('Initial microphone permission request failed:', err);
-        setRecordingState(prev => ({ ...prev, hasPermission: false, permissionDenied: true, status: 'Microphone access denied.' }));
+        setRecordingState(prev => ({ 
+          ...prev, 
+          hasPermission: false, 
+          permissionDenied: true, 
+          status: 'Microphone access denied. Please enable microphone permissions.' 
+        }));
       }
     };
     requestPermission();
