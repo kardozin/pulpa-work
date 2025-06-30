@@ -1,0 +1,207 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .form-input {
+    @apply w-full px-4 py-3 rounded-full border transition-colors ease-in-out;
+    @apply bg-surface/50 border-slate-600 text-text-main;
+    @apply placeholder:text-text-secondary/70;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-focus focus:border-primary-focus;
+  }
+}
+
+/* Custom animations for the blob interface */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(120deg);
+  }
+  66% {
+    transform: translateY(5px) rotate(240deg);
+  }
+}
+
+@keyframes dropFall {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+}
+
+@keyframes blobMorph {
+  0%, 100% {
+    border-radius: 50%;
+  }
+  25% {
+    border-radius: 45% 55% 60% 40% / 50% 45% 55% 50%;
+  }
+  50% {
+    border-radius: 40% 60% 55% 45% / 45% 50% 50% 55%;
+  }
+  75% {
+    border-radius: 55% 45% 50% 50% / 60% 40% 45% 55%;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 30px currentColor, 0 0 60px currentColor, 0 0 90px currentColor;
+  }
+}
+
+.animate-float {
+  animation: float linear infinite;
+}
+
+.animate-drop-fall {
+  animation: dropFall 2s ease-in-out infinite;
+}
+
+.animate-blob-morph {
+  animation: blobMorph 8s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.glow-text {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+}
+
+/* Custom scrollbar for glassmorphism */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Ensure backdrop-filter works */
+@supports (backdrop-filter: blur(10px)) {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+  .backdrop-blur-md {
+    backdrop-filter: blur(12px);
+  }
+  .backdrop-blur-lg {
+    backdrop-filter: blur(16px);
+  }
+  .backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+  }
+}
+
+/* Knowledge drops animation */
+.knowledge-drop {
+  position: absolute;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 50%;
+  animation: dropFall 2s ease-in-out infinite;
+}
+
+/* Blob button morphing */
+.blob-button {
+  transition: all 0.3s ease-out;
+}
+
+.blob-button:hover {
+  animation: blobMorph 4s ease-in-out infinite;
+}
+
+/* Ripple effect for audio levels */
+.audio-ripple {
+  position: absolute;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: ripple 1.5s ease-out infinite;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Glassmorphism enhancements */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hide scrollbar for conversation panel on mobile */
+@media (max-width: 768px) {
+  .conversation-panel {
+    width: 100vw;
+    left: 0;
+  }
+}

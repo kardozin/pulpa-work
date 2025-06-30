@@ -1,0 +1,6 @@
+{
+  "extends": "./deno.jsonc",
+  "include": [
+    "**/*.ts"
+  ]
+}

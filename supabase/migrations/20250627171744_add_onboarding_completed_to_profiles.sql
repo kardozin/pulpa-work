@@ -1,0 +1,4 @@
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS preferred_language TEXT,
+ADD COLUMN IF NOT EXISTS preferred_voice_id TEXT,
+ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE NOT NULL;

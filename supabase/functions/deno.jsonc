@@ -1,0 +1,29 @@
+{
+  "importMap": "./import_map.json",
+  "compilerOptions": {
+    "lib": [
+      "deno.window",
+      "dom",
+      "dom.iterable"
+    ],
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "lint": {
+    "files": {
+      "exclude": ["_shared/cors.ts"]
+    },
+    "rules": {
+      "tags": ["recommended"],
+      "exclude": ["no-explicit-any"]
+    }
+  },
+  "fmt": {
+    "options": {
+      "useTabs": false,
+      "lineWidth": 80,
+      "indentWidth": 2,
+      "singleQuote": true
+    }
+  }
+}
