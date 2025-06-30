@@ -81,6 +81,16 @@ function MainApp() {
   };
 
   const getButtonState = () => {
+    console.log('🔍 Button State Debug:', {
+      hasPermission: recordingState.hasPermission,
+      error: recordingState.error,
+      isRecording: recordingState.isRecording,
+      isProcessing: recordingState.isProcessing,
+      isAiThinking: recordingState.isAiThinking,
+      isGeneratingAudio: recordingState.isGeneratingAudio,
+      isPlayingAudio: recordingState.isPlayingAudio,
+    });
+
     if (!recordingState.hasPermission) return 'permission';
     if (recordingState.error) return 'error';
     if (recordingState.isRecording) return 'recording';
@@ -93,6 +103,7 @@ function MainApp() {
 
   const getButtonIcon = () => {
     const buttonState = getButtonState();
+    console.log('🎨 Button Icon for state:', buttonState);
     
     switch (buttonState) {
       case 'permission':
@@ -116,6 +127,7 @@ function MainApp() {
 
   const getButtonColor = () => {
     const buttonState = getButtonState();
+    console.log('🎨 Button Color for state:', buttonState);
     
     switch (buttonState) {
       case 'permission':
