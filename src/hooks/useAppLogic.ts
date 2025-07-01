@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { UseAuthReturn } from './useAuth';
 
-import { AUDIO_CONFIG, MAX_TURN_DURATION, SILENCE_DURATION, SILENCE_THRESHOLD } from '../config/audio';
+import { AUDIO_CONFIG, MAX_TURN_DURATION, SILENCE_DURATION, SILENCE_THRESHOLD, TRANSCRIPTION_CONFIG } from '../config/audio';
 
 import { generateUniqueId } from '../utils/misc';
 import { Profile, ConversationMessage, RecordingState } from '../types';
@@ -69,6 +69,8 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
   const currentConversationIdRef = useRef(currentConversationId);
   const animationFrameRef = useRef<number | null>(null);
   const hasDetectedSpeechRef = useRef(false);
+  const lastAudioLevelRef = useRef<number>(0);
+  const speechDetectionCountRef = useRef<number>(0);
 
   useEffect(() => {
     conversationHistoryRef.current = conversationHistory;
@@ -206,7 +208,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     }));
 
     try {
-      // Step 1: Transcribe Audio
+      // Step 1: Transcribe Audio with improved speed
       const transcription = await invokeTranscribe(audioBlob, profile.preferred_language || 'es-AR');
       if (!transcription.trim()) {
         console.log('Transcription is empty, skipping AI chat.');
@@ -377,6 +379,7 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     }
 
     hasDetectedSpeechRef.current = false;
+    speechDetectionCountRef.current = 0;
   }, [processAudio, resetToReadyState]);
 
   const monitorAudioLevel = useCallback(() => {
@@ -387,21 +390,45 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
     const checkAudio = () => {
       if (!analyserRef.current) return;
       analyserRef.current.getByteFrequencyData(dataArray);
+      
+      // Calculate average and apply smoothing
       const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
       const normalizedLevel = average / 255; // Normalize to 0-1
-      setRecordingState(prev => ({ ...prev, audioLevel: normalizedLevel }));
+      
+      // Apply smoothing to reduce noise
+      const smoothedLevel = (normalizedLevel + lastAudioLevelRef.current) / 2;
+      lastAudioLevelRef.current = smoothedLevel;
+      
+      setRecordingState(prev => ({ ...prev, audioLevel: smoothedLevel }));
 
-      if (normalizedLevel > SILENCE_THRESHOLD) {
-        hasDetectedSpeechRef.current = true;
-        if (silenceDetectionTimerRef.current) {
-          clearTimeout(silenceDetectionTimerRef.current);
-          silenceDetectionTimerRef.current = null;
+      // Improved speech detection with consecutive samples
+      if (smoothedLevel > SILENCE_THRESHOLD) {
+        speechDetectionCountRef.current++;
+        
+        // Require multiple consecutive samples above threshold to confirm speech
+        if (speechDetectionCountRef.current >= 3) {
+          if (!hasDetectedSpeechRef.current) {
+            console.log('🎤 Speech detected, starting silence detection timer');
+            hasDetectedSpeechRef.current = true;
+          }
+          
+          // Clear any existing silence timer
+          if (silenceDetectionTimerRef.current) {
+            clearTimeout(silenceDetectionTimerRef.current);
+            silenceDetectionTimerRef.current = null;
+          }
         }
-      } else if (hasDetectedSpeechRef.current && !silenceDetectionTimerRef.current) {
-        silenceDetectionTimerRef.current = setTimeout(() => {
-          console.log('Silence detected, stopping recording.');
-          stopStreamingRecording(true);
-        }, SILENCE_DURATION);
+      } else {
+        speechDetectionCountRef.current = Math.max(0, speechDetectionCountRef.current - 1);
+        
+        // Only start silence timer if we've detected speech and no timer is running
+        if (hasDetectedSpeechRef.current && !silenceDetectionTimerRef.current && speechDetectionCountRef.current === 0) {
+          console.log(`🔇 Starting silence timer (${SILENCE_DURATION}ms)`);
+          silenceDetectionTimerRef.current = setTimeout(() => {
+            console.log('🛑 Silence detected, stopping recording.');
+            stopStreamingRecording(true);
+          }, SILENCE_DURATION);
+        }
       }
 
       animationFrameRef.current = requestAnimationFrame(checkAudio);
@@ -418,6 +445,9 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
 
     handleInterruptAudio();
     allAudioChunksRef.current = [];
+    hasDetectedSpeechRef.current = false;
+    speechDetectionCountRef.current = 0;
+    lastAudioLevelRef.current = 0;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -437,13 +467,18 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         status: 'Microphone ready'
       }));
 
-      // Setup audio context for analysis
+      // Setup audio context for analysis with improved settings
       const context = new AudioContext({ sampleRate: AUDIO_CONFIG.sampleRate });
       audioContextRef.current = context;
       const source = context.createMediaStreamSource(stream);
       const analyser = context.createAnalyser();
-      analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.8;
+      
+      // Improved analyser settings for better speech detection
+      analyser.fftSize = 512; // Increased from 256 for better frequency resolution
+      analyser.smoothingTimeConstant = 0.3; // Reduced from 0.8 for more responsive detection
+      analyser.minDecibels = -90;
+      analyser.maxDecibels = -10;
+      
       source.connect(analyser);
       analyserRef.current = analyser;
 
@@ -499,8 +534,8 @@ export const useAppLogic = (profile: Profile | null, auth: UseAuthReturn): UseAp
         monitorAudioLevel();
       };
 
-      // Start recording with time slices for better data handling
-      mediaRecorder.start(1000);
+      // Start recording with faster time slices for improved responsiveness
+      mediaRecorder.start(TRANSCRIPTION_CONFIG.timeSlice);
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
